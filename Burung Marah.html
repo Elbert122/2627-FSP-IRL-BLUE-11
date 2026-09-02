@@ -1,0 +1,3529 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bird Blast School</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    user-select:none;
+}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#5cccf5;
+}
+
+#game{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+    background:
+        linear-gradient(
+            #50c8f2 0%,
+            #b0ebfa 62%,
+            #91d75b 62%,
+            #74bd47 100%
+        );
+    touch-action:none;
+}
+
+/* =====================================================
+   CLOUD
+===================================================== */
+
+.cloud{
+    position:absolute;
+    width:180px;
+    height:45px;
+    background:white;
+    border-radius:50px;
+    opacity:.7;
+}
+
+.cloud::before,
+.cloud::after{
+    content:"";
+    position:absolute;
+    background:white;
+    border-radius:50%;
+}
+
+.cloud::before{
+    width:80px;
+    height:80px;
+    left:28px;
+    top:-40px;
+}
+
+.cloud::after{
+    width:95px;
+    height:95px;
+    left:78px;
+    top:-48px;
+}
+
+.cloud1{
+    left:5%;
+    top:28%;
+}
+
+.cloud2{
+    left:52%;
+    top:22%;
+    transform:scale(.7);
+}
+
+.cloud3{
+    right:-4%;
+    top:37%;
+    transform:scale(.9);
+}
+
+/* =====================================================
+   GROUND
+===================================================== */
+
+#ground{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:22%;
+    background:#70472f;
+    border-top:14px solid #55a83b;
+    box-shadow:inset 0 10px #91d04f;
+}
+
+/* =====================================================
+   UI
+===================================================== */
+
+#topUI{
+    position:absolute;
+    z-index:500;
+    left:18px;
+    right:18px;
+    top:14px;
+    display:flex;
+    justify-content:space-between;
+}
+
+#birdsBox{
+    background:#163d53ec;
+    color:#fff;
+    padding:8px 18px;
+    border-radius:12px;
+    text-align:center;
+    font-weight:bold;
+}
+
+#birdsBox small{
+    display:block;
+    font-size:13px;
+}
+
+#birdsCount{
+    display:block;
+    font-size:30px;
+}
+
+#scoreBox{
+    text-align:right;
+    color:white;
+    font-weight:bold;
+    text-shadow:0 3px 2px #17384a;
+}
+
+#levelText{
+    font-size:17px;
+}
+
+#scoreNumber{
+    font-size:31px;
+}
+
+#levelBadge{
+    position:absolute;
+    z-index:500;
+    left:50%;
+    top:13px;
+    transform:translateX(-50%);
+    padding:7px 17px;
+    color:white;
+    background:#173d52e8;
+    border-radius:17px;
+    font-size:14px;
+    font-weight:bold;
+}
+
+#hint{
+    position:absolute;
+    z-index:500;
+    top:48px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#ffffffd4;
+    color:#21475b;
+    padding:7px 14px;
+    border-radius:16px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+/* =====================================================
+   KETAPEL
+===================================================== */
+
+#slingshot{
+    position:absolute;
+    z-index:120;
+    left:7%;
+    bottom:18%;
+    width:90px;
+    height:195px;
+}
+
+.fork{
+    position:absolute;
+    bottom:8px;
+    width:18px;
+    height:180px;
+    border-radius:12px;
+    background:linear-gradient(90deg,#a66d39,#603618);
+    border:4px solid #543018;
+    transform-origin:bottom;
+}
+
+.fork.left{
+    left:12px;
+    transform:rotate(-7deg);
+}
+
+.fork.right{
+    right:12px;
+    transform:rotate(7deg);
+}
+
+#base{
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:90px;
+    height:25px;
+    background:#75451f;
+    border:4px solid #563018;
+    border-radius:50%;
+}
+
+.band{
+    position:absolute;
+    z-index:125;
+    bottom:148px;
+    width:9px;
+    height:75px;
+    background:#432514;
+    border-radius:8px;
+    transform-origin:bottom;
+}
+
+#bandLeft{
+    left:25px;
+}
+
+#bandRight{
+    right:25px;
+}
+
+/* =====================================================
+   BIRD
+===================================================== */
+
+#bird{
+    position:absolute;
+    z-index:300;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 28%,
+            #ff5c5c,
+            #e32d2d 55%,
+            #a91616 100%
+        );
+
+    border:4px solid #851616;
+    box-shadow:0 5px 8px #0006;
+
+    cursor:grab;
+
+    will-change:left,top,transform;
+}
+
+#birdEye{
+    position:absolute;
+    right:12px;
+    top:16px;
+    width:8px;
+    height:11px;
+    border-radius:50%;
+    background:#111;
+}
+
+#birdBrow{
+    position:absolute;
+    right:5px;
+    top:8px;
+    width:30px;
+    height:7px;
+    background:#111;
+    transform:rotate(-10deg);
+}
+
+#bird::after{
+    content:"";
+    position:absolute;
+    right:-20px;
+    top:29px;
+    border-left:25px solid #efa91c;
+    border-top:9px solid transparent;
+    border-bottom:9px solid transparent;
+}
+
+/* Seragam siswa */
+
+#uniform{
+    position:absolute;
+    left:4px;
+    bottom:-5px;
+    width:52px;
+    height:25px;
+
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #9aa19f 0 5px,
+            #596260 5px 8px,
+            #a4aba9 8px 11px
+        );
+
+    border:2px solid #3f4745;
+    border-radius:0 0 22px 22px;
+}
+
+#shirt{
+    position:absolute;
+    left:19px;
+    bottom:2px;
+    width:22px;
+    height:20px;
+    background:white;
+}
+
+#tie{
+    position:absolute;
+    left:26px;
+    bottom:1px;
+    width:7px;
+    height:22px;
+    background:#731f31;
+}
+
+/* =====================================================
+   TRAJECTORY
+===================================================== */
+
+#trajectory{
+    position:absolute;
+    inset:0;
+    z-index:200;
+    pointer-events:none;
+}
+
+.dot{
+    position:absolute;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:white;
+    box-shadow:0 0 4px white;
+}
+
+/* =====================================================
+   LABEL FISIKA
+===================================================== */
+
+.physics{
+    position:absolute;
+    z-index:250;
+    padding:4px 7px;
+    border-radius:6px;
+    font-size:12px;
+    color:white;
+    font-weight:bold;
+    text-shadow:0 2px 3px #000;
+    pointer-events:none;
+    opacity:0;
+}
+
+.theta{
+    background:#d39520;
+}
+
+.vx{
+    background:#23994d;
+}
+
+.vy{
+    background:#c63b3b;
+}
+
+/* =====================================================
+   CASTLE
+===================================================== */
+
+#castle{
+    position:absolute;
+    z-index:60;
+    right:4%;
+    bottom:18%;
+    width:45%;
+    height:68%;
+}
+
+/* =====================================================
+   BLOCK
+===================================================== */
+
+.block{
+    position:absolute;
+    border:3px solid;
+    box-shadow:0 4px 7px #0005;
+    transform-origin:center;
+}
+
+.wood{
+    background:linear-gradient(90deg,#ffb339,#db7b19);
+    border-color:#82501e;
+}
+
+.stone{
+    background:linear-gradient(#9fa3a7,#676c71);
+    border-color:#555b5f;
+}
+
+.glass{
+    background:linear-gradient(90deg,#6cdeef99,#b9f4ff88);
+    border-color:#43a9c3;
+}
+
+.block.damage1{
+    filter:brightness(.8);
+}
+
+.block.damage2{
+    filter:brightness(.6);
+}
+
+/* =====================================================
+   GURU
+===================================================== */
+
+.pig{
+    position:absolute;
+    width:64px;
+    height:64px;
+    z-index:150;
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 28%,
+            #a5e96b,
+            #68c52f 65%,
+            #438c20
+        );
+
+    border:4px solid #39821d;
+    box-shadow:0 4px 6px #0005;
+}
+
+.teacherShirt{
+    position:absolute;
+    left:4px;
+    bottom:-5px;
+    width:56px;
+    height:30px;
+
+    background:linear-gradient(
+        #acd1e2,
+        #76aabd
+    );
+
+    border:2px solid #4b7382;
+    border-radius:0 0 22px 22px;
+}
+
+.teacherTie{
+    position:absolute;
+    left:28px;
+    bottom:2px;
+    width:8px;
+    height:23px;
+    background:#273f62;
+}
+
+.teacherPocket{
+    position:absolute;
+    right:7px;
+    bottom:8px;
+    width:14px;
+    height:11px;
+    border:2px solid #52798a;
+}
+
+.pigEye1,
+.pigEye2{
+    position:absolute;
+    top:17px;
+    width:9px;
+    height:12px;
+    background:#111;
+    border-radius:50%;
+}
+
+.pigEye1{
+    left:14px;
+}
+
+.pigEye2{
+    right:14px;
+}
+
+.pigSnout{
+    position:absolute;
+    left:12px;
+    bottom:10px;
+    width:34px;
+    height:20px;
+    border-radius:50%;
+    background:#afe978;
+    border:2px solid #39821d;
+}
+
+.pigSnout::after{
+    content:"• •";
+    position:absolute;
+    left:7px;
+    top:-4px;
+    font-weight:bold;
+    color:#39751e;
+}
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+#message{
+    position:absolute;
+    z-index:1000;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+
+    min-width:330px;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    background:#123d52f5;
+
+    color:white;
+
+    text-align:center;
+
+    display:none;
+
+    box-shadow:0 15px 45px #0008;
+}
+
+#message h2{
+    margin:0;
+    font-size:32px;
+}
+
+#message p{
+    font-size:18px;
+}
+
+.messageBtn{
+    border:0;
+    border-radius:10px;
+    padding:11px 20px;
+    margin:5px;
+    background:#42b966;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.restart{
+    background:#e9a321;
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:900px){
+
+    #castle{
+        width:53%;
+    }
+
+    #slingshot{
+        left:4%;
+    }
+
+    #hint{
+        display:none;
+    }
+
+}
+</style>
+</head>
+
+
+<body>
+
+<div id="game">
+
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="cloud cloud3"></div>
+
+    <div id="ground"></div>
+
+
+    <!-- =============================
+         UI
+    ============================== -->
+
+    <div id="topUI">
+
+        <div id="birdsBox">
+
+            <small>BIRDS LEFT</small>
+
+            <span id="birdsCount">
+                5
+            </span>
+
+        </div>
+
+
+        <div id="scoreBox">
+
+            <span id="levelText">
+                LEVEL 1
+            </span>
+
+            <br>
+
+            SCORE
+
+            <br>
+
+            <span id="scoreNumber">
+                0
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div id="levelBadge">
+        LEVEL 1
+    </div>
+
+
+    <div id="hint">
+        Tarik 🔴 ke belakang lalu lepaskan!
+    </div>
+
+
+    <!-- =============================
+         SLINGSHOT
+    ============================== -->
+
+    <div id="slingshot">
+
+        <div class="fork left"></div>
+        <div class="fork right"></div>
+
+        <div
+            class="band"
+            id="bandLeft">
+        </div>
+
+        <div
+            class="band"
+            id="bandRight">
+        </div>
+
+        <div id="base"></div>
+
+    </div>
+
+
+    <!-- =============================
+         BIRD
+    ============================== -->
+
+    <div id="bird">
+
+        <div id="birdBrow"></div>
+
+        <div id="birdEye"></div>
+
+        <div id="uniform"></div>
+
+        <div id="shirt"></div>
+
+        <div id="tie"></div>
+
+    </div>
+
+
+    <!-- =============================
+         TRAJECTORY
+    ============================== -->
+
+    <div id="trajectory"></div>
+
+
+    <!-- PHYSICS LABEL -->
+
+    <div
+        class="physics theta"
+        id="thetaLabel">
+    </div>
+
+    <div
+        class="physics vx"
+        id="vxLabel">
+    </div>
+
+    <div
+        class="physics vy"
+        id="vyLabel">
+    </div>
+
+
+    <!-- =============================
+         CASTLE
+    ============================== -->
+
+    <div id="castle"></div>
+
+
+    <!-- =============================
+         MESSAGE
+    ============================== -->
+
+    <div id="message">
+
+        <h2 id="messageTitle">
+            LEVEL SELESAI!
+        </h2>
+
+        <p id="messageText">
+        </p>
+
+        <button
+            class="messageBtn"
+            id="nextButton">
+
+            LEVEL SELANJUTNYA →
+
+        </button>
+
+        <button
+            class="messageBtn restart"
+            id="restartButton">
+
+            ULANGI
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   ELEMENT
+===================================================== */
+
+const game =
+document.getElementById("game");
+
+const bird =
+document.getElementById("bird");
+
+const sling =
+document.getElementById("slingshot");
+
+const castle =
+document.getElementById("castle");
+
+const trajectory =
+document.getElementById("trajectory");
+
+const thetaLabel =
+document.getElementById("thetaLabel");
+
+const vxLabel =
+document.getElementById("vxLabel");
+
+const vyLabel =
+document.getElementById("vyLabel");
+
+const birdsCount =
+document.getElementById("birdsCount");
+
+const scoreNumber =
+document.getElementById("scoreNumber");
+
+const levelBadge =
+document.getElementById("levelBadge");
+
+const levelText =
+document.getElementById("levelText");
+
+const hint =
+document.getElementById("hint");
+
+const message =
+document.getElementById("message");
+
+const messageTitle =
+document.getElementById("messageTitle");
+
+const messageText =
+document.getElementById("messageText");
+
+const nextButton =
+document.getElementById("nextButton");
+
+const restartButton =
+document.getElementById("restartButton");
+
+
+/* =====================================================
+   PHYSICS CONSTANTS
+===================================================== */
+
+const MAX_PULL = 190;
+
+/*
+    KEKUATAN KETAPEL
+
+    Dibuat cukup besar supaya
+    burung benar-benar bergerak jauh.
+*/
+
+const POWER = 6.8;
+
+
+/*
+    GRAVITASI
+*/
+
+const GRAVITY = 900;
+
+
+/*
+    KOEFISIEN PANTULAN
+
+    0.5 = cukup memantul
+*/
+
+const BOUNCE = 0.50;
+
+
+/*
+    DRAG AIR
+*/
+
+const AIR = 0.998;
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let level = 1;
+
+let birds = 5;
+
+let score = 0;
+
+let dragging = false;
+
+let flying = false;
+
+let currentBirdAlive = true;
+
+
+/* =====================================================
+   POSITION
+===================================================== */
+
+let bx = 0;
+
+let by = 0;
+
+
+/* =====================================================
+   VELOCITY
+
+   PX / SECOND
+===================================================== */
+
+let vx = 0;
+
+let vy = 0;
+
+
+/* =====================================================
+   TIME
+===================================================== */
+
+let lastTime = 0;
+
+let flightTime = 0;
+
+
+/*
+    Untuk mencegah collision
+    berulang-ulang.
+*/
+
+const collisionCooldown =
+new WeakMap();
+
+
+/* =====================================================
+   SLING POINT
+===================================================== */
+
+function getSlingPoint(){
+
+    const sr =
+    sling.getBoundingClientRect();
+
+    const gr =
+    game.getBoundingClientRect();
+
+
+    return {
+
+        x:
+        sr.left -
+        gr.left +
+        sr.width/2 -
+        30,
+
+        y:
+        sr.top -
+        gr.top +
+        68
+
+    };
+
+}
+
+
+/* =====================================================
+   SPAWN BIRD
+===================================================== */
+
+function spawnBird(){
+
+    const p =
+    getSlingPoint();
+
+
+    bx = p.x;
+
+    by = p.y;
+
+
+    vx = 0;
+
+    vy = 0;
+
+
+    flying = false;
+
+    dragging = false;
+
+
+    currentBirdAlive = true;
+
+
+    bird.style.left =
+    bx+"px";
+
+
+    bird.style.top =
+    by+"px";
+
+
+    bird.style.transform =
+    "rotate(0deg)";
+
+
+    trajectory.innerHTML =
+    "";
+
+
+    hidePhysics();
+
+
+    hint.textContent =
+    "Tarik 🔴 ke belakang lalu lepaskan!";
+
+}
+
+
+/* =====================================================
+   POINTER POSITION
+===================================================== */
+
+function pointerPosition(e){
+
+    const r =
+    game.getBoundingClientRect();
+
+
+    return {
+
+        x:
+        e.clientX-r.left,
+
+        y:
+        e.clientY-r.top
+
+    };
+
+}
+
+
+/* =====================================================
+   POINTER DOWN
+===================================================== */
+
+bird.addEventListener(
+"pointerdown",
+function(e){
+
+    if(
+        flying ||
+        birds <= 0 ||
+        !currentBirdAlive
+    ){
+
+        return;
+
+    }
+
+
+    dragging = true;
+
+
+    bird.setPointerCapture(
+        e.pointerId
+    );
+
+
+    calculatePreview();
+
+
+});
+
+
+/* =====================================================
+   POINTER MOVE
+===================================================== */
+
+bird.addEventListener(
+"pointermove",
+function(e){
+
+    if(!dragging){
+
+        return;
+
+    }
+
+
+    const p =
+    getSlingPoint();
+
+
+    const mouse =
+    pointerPosition(e);
+
+
+    let targetX =
+    mouse.x - 30;
+
+
+    let targetY =
+    mouse.y - 30;
+
+
+    /*
+        Vektor tarikan
+
+        dari titik ketapel
+        menuju posisi burung
+    */
+
+    let dx =
+    targetX-p.x;
+
+    let dy =
+    targetY-p.y;
+
+
+    let distance =
+    Math.hypot(
+        dx,
+        dy
+    );
+
+
+    /*
+        BATAS TARIKAN
+    */
+
+    if(
+        distance >
+        MAX_PULL
+    ){
+
+        targetX =
+        p.x +
+        dx/distance *
+        MAX_PULL;
+
+
+        targetY =
+        p.y +
+        dy/distance *
+        MAX_PULL;
+
+    }
+
+
+    bx =
+    targetX;
+
+    by =
+    targetY;
+
+
+    bird.style.left =
+    bx+"px";
+
+
+    bird.style.top =
+    by+"px";
+
+
+    calculatePreview();
+
+
+});
+
+
+/* =====================================================
+   POINTER UP
+===================================================== */
+
+bird.addEventListener(
+"pointerup",
+function(){
+
+    if(!dragging){
+
+        return;
+
+    }
+
+
+    dragging = false;
+
+
+    trajectory.innerHTML =
+    "";
+
+
+    const p =
+    getSlingPoint();
+
+
+    /*
+        Jarak tarikan
+    */
+
+    const pullX =
+    p.x-bx;
+
+    const pullY =
+    p.y-by;
+
+
+    const pullLength =
+    Math.hypot(
+        pullX,
+        pullY
+    );
+
+
+    /*
+        kalau terlalu kecil
+    */
+
+    if(
+        pullLength <
+        15
+    ){
+
+        spawnBird();
+
+        return;
+
+    }
+
+
+    /*
+        ==============================
+        ARAH TEMBAKAN
+        ==============================
+    */
+
+
+    /*
+        Karena layar:
+
+        X positif → kanan
+        Y positif → bawah
+
+        Maka:
+
+        pullY positif berarti
+        burung ditarik ke ATAS?
+
+        Kita langsung menggunakan
+        vektor dari burung menuju
+        ketapel.
+    */
+
+    const directionX =
+    pullX /
+    pullLength;
+
+
+    const directionY =
+    pullY /
+    pullLength;
+
+
+    /*
+        KECEPATAN AWAL
+
+        Vx = arahX × besar
+        Vy = arahY × besar
+    */
+
+    vx =
+    directionX *
+    pullLength *
+    POWER;
+
+
+    vy =
+    directionY *
+    pullLength *
+    POWER;
+
+
+    /*
+        Jadi jika burung
+        ditarik ke kiri atas:
+
+        pullX = positif
+        pullY = positif
+
+        maka:
+
+        vx positif
+        vy positif
+
+        Tapi koordinat layar
+        positif Y = bawah.
+
+        Kita perlu membalik Vy
+        supaya positif berarti ke atas.
+    */
+
+    vy =
+    -vy;
+
+
+    /*
+        Sekarang burung benar-benar
+        mempunyai kecepatan awal.
+    */
+
+
+    birds--;
+
+    birdsCount.textContent =
+    birds;
+
+
+    flightTime = 0;
+
+
+    flying = true;
+
+
+    currentBirdAlive = true;
+
+
+    lastTime =
+    performance.now();
+
+
+    hint.textContent =
+    "🚀 TERBANG!";
+
+
+    requestAnimationFrame(
+        physicsLoop
+    );
+
+});
+
+
+/* =====================================================
+   PHYSICS LOOP
+===================================================== */
+
+function physicsLoop(now){
+
+    if(!flying){
+
+        return;
+
+    }
+
+
+    /*
+        delta time
+
+        dibatasi supaya tidak
+        lompat terlalu jauh.
+    */
+
+    const dt =
+    Math.min(
+        (now-lastTime)/
+        1000,
+        0.025
+    );
+
+
+    lastTime =
+    now;
+
+
+    flightTime +=
+    dt;
+
+
+    /*
+        =================================
+        HORIZONTAL
+        =================================
+
+        x = x + vx × t
+
+    */
+
+    bx +=
+    vx *
+    dt;
+
+
+    /*
+        =================================
+        VERTICAL
+        =================================
+
+        vY = vY + g × t
+    */
+
+    vy +=
+    GRAVITY *
+    dt;
+
+
+    by +=
+    vy *
+    dt;
+
+
+    /*
+        AIR RESISTANCE
+    */
+
+    vx *=
+    AIR;
+
+
+    /*
+        =================================
+        VISUAL
+    */
+
+    bird.style.left =
+    bx+"px";
+
+
+    bird.style.top =
+    by+"px";
+
+
+    /*
+        BURUNG BERPUTAR
+    */
+
+    const rotation =
+    Math.atan2(
+        vy,
+        vx
+    )
+    *180/
+    Math.PI;
+
+
+    bird.style.transform =
+    `rotate(${rotation}deg)`;
+
+
+    /*
+        TABRAKAN
+    */
+
+    checkBlockCollisions();
+
+    checkPigCollisions();
+
+    checkGroundCollision();
+
+
+    /*
+        =================================
+        CEK KELUAR LAYAR
+        =================================
+    */
+
+    const W =
+    game.clientWidth;
+
+    const H =
+    game.clientHeight;
+
+
+    if(
+        bx < -200 ||
+        bx > W+200 ||
+        by > H+200
+    ){
+
+        finishBird();
+
+        return;
+
+    }
+
+
+    requestAnimationFrame(
+        physicsLoop
+    );
+
+}
+
+
+/* =====================================================
+   COLLISION BLOCK
+===================================================== */
+
+function checkBlockCollisions(){
+
+    const br =
+    bird.getBoundingClientRect();
+
+
+    document
+    .querySelectorAll(
+        "#castle .block"
+    )
+    .forEach(
+        block=>{
+
+            if(
+                !block.isConnected ||
+                block.dataset.dead==="1"
+            ){
+
+                return;
+
+            }
+
+
+            const r =
+            block.getBoundingClientRect();
+
+
+            if(
+                br.right <= r.left ||
+                br.left >= r.right ||
+                br.bottom <= r.top ||
+                br.top >= r.bottom
+            ){
+
+                return;
+
+            }
+
+
+            const previous =
+            collisionCooldown.get(
+                block
+            ) || 0;
+
+
+            const now =
+            performance.now();
+
+
+            if(
+                now-previous <
+                130
+            ){
+
+                return;
+
+            }
+
+
+            collisionCooldown.set(
+                block,
+                now
+            );
+
+
+            collideBlock(
+                block
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   BLOCK COLLISION PHYSICS
+===================================================== */
+
+function collideBlock(block){
+
+    const br =
+    bird.getBoundingClientRect();
+
+    const r =
+    block.getBoundingClientRect();
+
+
+    /*
+        Tentukan sisi yang ditabrak
+    */
+
+    const fromLeft =
+    Math.abs(
+        br.right-r.left
+    );
+
+
+    const fromRight =
+    Math.abs(
+        r.right-br.left
+    );
+
+
+    const fromTop =
+    Math.abs(
+        br.bottom-r.top
+    );
+
+
+    const fromBottom =
+    Math.abs(
+        r.bottom-br.top
+    );
+
+
+    let nx = 0;
+
+    let ny = 0;
+
+
+    const minimum =
+    Math.min(
+        fromLeft,
+        fromRight,
+        fromTop,
+        fromBottom
+    );
+
+
+    if(
+        minimum === fromLeft
+    ){
+
+        nx = -1;
+
+    }
+
+    else if(
+        minimum === fromRight
+    ){
+
+        nx = 1;
+
+    }
+
+    else if(
+        minimum === fromTop
+    ){
+
+        ny = -1;
+
+    }
+
+    else{
+
+        ny = 1;
+
+    }
+
+
+    /*
+        KECEPATAN SEBELUM
+        TABRAKAN
+    */
+
+    const speed =
+    Math.hypot(
+        vx,
+        vy
+    );
+
+
+    /*
+        =================================
+        REFLECTION
+
+        v' =
+        v - (1+e)(v·n)n
+        =================================
+    */
+
+    const dot =
+    vx*nx +
+    vy*ny;
+
+
+    if(
+        dot < 0
+    ){
+
+        vx =
+        vx -
+        (1+BOUNCE)*
+        dot*
+        nx;
+
+
+        vy =
+        vy -
+        (1+BOUNCE)*
+        dot*
+        ny;
+
+    }
+
+
+    /*
+        Geser keluar dari block
+    */
+
+    bx +=
+    nx*8;
+
+    by +=
+    ny*8;
+
+
+    /*
+        =================================
+        DAMAGE
+        =================================
+    */
+
+    let damage =
+    speed*.22;
+
+
+    /*
+        Beda material
+    */
+
+    if(
+        block.classList.contains(
+            "glass"
+        )
+    ){
+
+        damage *=
+        2.1;
+
+    }
+
+    else if(
+        block.classList.contains(
+            "wood"
+        )
+    ){
+
+        damage *=
+        1.25;
+
+    }
+
+    else if(
+        block.classList.contains(
+            "stone"
+        )
+    ){
+
+        damage *=
+        .52;
+
+    }
+
+
+    let hp =
+    Number(
+        block.dataset.hp
+    );
+
+
+    hp -=
+    damage;
+
+
+    block.dataset.hp =
+    hp;
+
+
+    const maxHP =
+    Number(
+        block.dataset.maxhp
+    );
+
+
+    /*
+        RETAK
+    */
+
+    if(
+        hp <
+        maxHP*.65
+    ){
+
+        block.classList.add(
+            "damage1"
+        );
+
+    }
+
+
+    if(
+        hp <
+        maxHP*.32
+    ){
+
+        block.classList.add(
+            "damage2"
+        );
+
+    }
+
+
+    /*
+        HANCUR
+    */
+
+    if(
+        hp <= 0
+    ){
+
+        destroyBlock(
+            block,
+            speed
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   DESTROY BLOCK
+===================================================== */
+
+function destroyBlock(
+    block,
+    speed
+){
+
+    if(
+        block.dataset.dead==="1"
+    ){
+
+        return;
+
+    }
+
+
+    block.dataset.dead =
+    "1";
+
+
+    /*
+        score
+    */
+
+    if(
+        block.classList.contains(
+            "stone"
+        )
+    ){
+
+        score +=
+        150;
+
+    }
+
+    else if(
+        block.classList.contains(
+            "glass"
+        )
+    ){
+
+        score +=
+        80;
+
+    }
+
+    else{
+
+        score +=
+        100;
+
+    }
+
+
+    scoreNumber.textContent =
+    score;
+
+
+    /*
+        arah jatuh
+    */
+
+    const direction =
+    vx >= 0
+    ? 1
+    : -1;
+
+
+    block.style.transition =
+    "transform .6s ease, opacity .6s";
+
+
+    block.style.transform =
+    `
+        translate(
+            ${direction*(25+speed/10)}px,
+            ${40+speed/10}px
+        )
+
+        rotate(
+            ${direction*18}deg
+        )
+    `;
+
+
+    block.style.opacity =
+    "0";
+
+
+    /*
+        Benda di atas ikut jatuh
+    */
+
+    const br =
+    block.getBoundingClientRect();
+
+
+    document
+    .querySelectorAll(
+        "#castle .block,#castle .pig"
+    )
+    .forEach(
+        obj=>{
+
+            if(
+                obj===block ||
+                !obj.isConnected
+            ){
+
+                return;
+
+            }
+
+
+            const r =
+            obj.getBoundingClientRect();
+
+
+            if(
+                Math.abs(
+                    r.bottom-
+                    br.top
+                ) < 22
+                &&
+                r.left<br.right
+                &&
+                r.right>br.left
+            ){
+
+                obj.style.transition =
+                "transform .7s";
+
+
+                obj.style.transform =
+                `
+                translateY(
+                    ${50+speed/10}px
+                )
+
+                rotate(
+                    ${(Math.random()*22)-11}deg
+                )
+                `;
+
+            }
+
+        }
+    );
+
+
+    setTimeout(
+        ()=>{
+
+            if(
+                block.isConnected
+            ){
+
+                block.remove();
+
+            }
+
+
+            checkWin();
+
+        },
+        600
+    );
+
+}
+
+
+/* =====================================================
+   PIG COLLISION
+===================================================== */
+
+function checkPigCollisions(){
+
+    const br =
+    bird.getBoundingClientRect();
+
+
+    document
+    .querySelectorAll(
+        "#castle .pig"
+    )
+    .forEach(
+        pig=>{
+
+            if(
+                !pig.isConnected
+            ){
+
+                return;
+
+            }
+
+
+            const r =
+            pig.getBoundingClientRect();
+
+
+            if(
+                br.right<=r.left ||
+                br.left>=r.right ||
+                br.bottom<=r.top ||
+                br.top>=r.bottom
+            ){
+
+                return;
+
+            }
+
+
+            hitPig(
+                pig
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   HIT PIG
+===================================================== */
+
+function hitPig(pig){
+
+    const previous =
+    collisionCooldown.get(
+        pig
+    ) || 0;
+
+
+    const now =
+    performance.now();
+
+
+    if(
+        now-previous <
+        200
+    ){
+
+        return;
+
+    }
+
+
+    collisionCooldown.set(
+        pig,
+        now
+    );
+
+
+    /*
+        DAMAGE
+    */
+
+    let hp =
+    Number(
+        pig.dataset.hp
+    );
+
+
+    const impact =
+    Math.hypot(
+        vx,
+        vy
+    );
+
+
+    hp -=
+    impact*.36;
+
+
+    pig.dataset.hp =
+    hp;
+
+
+    /*
+        PANTUL
+    */
+
+    vy =
+    -Math.abs(vy)*
+    .55;
+
+
+    vx *=
+    .78;
+
+
+    /*
+        Jika kalah
+    */
+
+    if(
+        hp<=0
+    ){
+
+        pig.style.transition =
+        "transform .25s ease, opacity .25s ease";
+
+
+        pig.style.transform =
+        "scale(.1)";
+
+
+        pig.style.opacity =
+        "0";
+
+
+        score +=
+        1000;
+
+
+        scoreNumber.textContent =
+        score;
+
+
+        setTimeout(
+            ()=>{
+
+                if(
+                    pig.isConnected
+                ){
+
+                    pig.remove();
+
+                }
+
+
+                checkWin();
+
+            },
+            250
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   GROUND COLLISION
+===================================================== */
+
+function checkGroundCollision(){
+
+    const groundY =
+    game.clientHeight*.78;
+
+
+    const radius =
+    30;
+
+
+    if(
+        by+radius >=
+        groundY
+    ){
+
+        by =
+        groundY-radius;
+
+
+        /*
+            PANTUL TANAH
+        */
+
+        if(
+            Math.abs(vy)>180
+        ){
+
+            vy =
+            -Math.abs(vy)*
+            .40;
+
+
+            vx *=
+            .84;
+
+        }
+
+        else{
+
+            /*
+                pelan-pelan berhenti
+            */
+
+            vy *=
+            .1;
+
+
+            vx *=
+            .88;
+
+        }
+
+
+        /*
+            Kalau sudah cukup lambat,
+            selesai.
+        */
+
+        if(
+            Math.abs(vx)<
+            35
+            &&
+            Math.abs(vy)<
+            35
+        ){
+
+            finishBird();
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   FINISH BIRD
+===================================================== */
+
+function finishBird(){
+
+    if(
+        !flying
+    ){
+
+        return;
+
+    }
+
+
+    flying =
+    false;
+
+
+    bird.style.transform =
+    "rotate(0deg)";
+
+
+    /*
+        Cek menang dulu
+    */
+
+    if(
+        document
+        .querySelectorAll(
+            "#castle .pig"
+        )
+        .length===0
+    ){
+
+        levelComplete();
+
+        return;
+
+    }
+
+
+    /*
+        MASIH ADA BURUNG
+    */
+
+    if(
+        birds>0
+    ){
+
+        hint.textContent =
+        "🔴 Burung berikutnya siap!";
+
+
+        setTimeout(
+            ()=>{
+                spawnBird();
+            },
+            350
+        );
+
+
+        return;
+
+    }
+
+
+    /*
+        Burung habis
+    */
+
+    gameOver();
+
+}
+
+
+/* =====================================================
+   CHECK WIN
+===================================================== */
+
+function checkWin(){
+
+    const pigs =
+    document
+    .querySelectorAll(
+        "#castle .pig"
+    );
+
+
+    if(
+        pigs.length===0
+    ){
+
+        levelComplete();
+
+    }
+
+}
+
+
+/* =====================================================
+   PREVIEW
+===================================================== */
+
+function calculatePreview(){
+
+    const p =
+    getSlingPoint();
+
+
+    const dx =
+    p.x-bx;
+
+    const dy =
+    p.y-by;
+
+
+    const distance =
+    Math.hypot(
+        dx,
+        dy
+    );
+
+
+    if(
+        distance<1
+    ){
+
+        hidePhysics();
+
+        return;
+
+    }
+
+
+    /*
+        SUDUT
+    */
+
+    const angle =
+    Math.atan2(
+        Math.abs(dy),
+        Math.abs(dx)
+    );
+
+
+    const degrees =
+    angle*
+    180/
+    Math.PI;
+
+
+    /*
+        V0
+    */
+
+    const v0 =
+    distance*
+    POWER/
+    10;
+
+
+    /*
+        KOMPONEN
+
+        Vx
+        Vy
+    */
+
+    const vxPhysical =
+    v0*
+    Math.cos(angle);
+
+
+    const vyPhysical =
+    v0*
+    Math.sin(angle);
+
+
+    /*
+        Tampilkan
+    */
+
+    thetaLabel.textContent =
+    "θ = "+
+    degrees.toFixed(1)+
+    "°";
+
+
+    vxLabel.textContent =
+    "Vx = "+
+    vxPhysical.toFixed(1)+
+    " m/s";
+
+
+    vyLabel.textContent =
+    "Vy = "+
+    vyPhysical.toFixed(1)+
+    " m/s";
+
+
+    /*
+        Di sekitar burung
+    */
+
+    thetaLabel.style.left =
+    bx+48+"px";
+
+    thetaLabel.style.top =
+    by-42+"px";
+
+
+    vxLabel.style.left =
+    bx+48+"px";
+
+    vxLabel.style.top =
+    by+2+"px";
+
+
+    vyLabel.style.left =
+    bx+48+"px";
+
+    vyLabel.style.top =
+    by+25+"px";
+
+
+    thetaLabel.style.opacity =
+    "1";
+
+    vxLabel.style.opacity =
+    "1";
+
+    vyLabel.style.opacity =
+    "1";
+
+
+    /*
+        Lintasan
+    */
+
+    drawTrajectory();
+
+}
+
+
+/* =====================================================
+   HIDE PHYSICS
+===================================================== */
+
+function hidePhysics(){
+
+    thetaLabel.style.opacity =
+    "0";
+
+    vxLabel.style.opacity =
+    "0";
+
+    vyLabel.style.opacity =
+    "0";
+
+}
+
+
+/* =====================================================
+   TRAJECTORY
+===================================================== */
+
+function drawTrajectory(){
+
+    trajectory.innerHTML =
+    "";
+
+
+    const p =
+    getSlingPoint();
+
+
+    const dx =
+    p.x-bx;
+
+    const dy =
+    p.y-by;
+
+
+    const distance =
+    Math.hypot(
+        dx,
+        dy
+    );
+
+
+    if(
+        distance<1
+    ){
+
+        return;
+
+    }
+
+
+    /*
+        arah ke ketapel
+    */
+
+    const dirX =
+    dx/distance;
+
+    const dirY =
+    dy/distance;
+
+
+    const speed =
+    distance*
+    POWER;
+
+
+    const previewVx =
+    dirX*
+    speed;
+
+
+    const previewVy =
+    -dirY*
+    speed;
+
+
+    /*
+        Gambar titik parabola
+    */
+
+    for(
+        let i=1;
+        i<=55;
+        i++
+    ){
+
+        const t =
+        i*.055;
+
+
+        const x =
+        bx+
+        previewVx*
+        t;
+
+
+        const y =
+        by+
+        previewVy*
+        t+
+        .5*
+        GRAVITY*
+        t*t;
+
+
+        if(
+            x<0 ||
+            x>game.clientWidth ||
+            y<0 ||
+            y>game.clientHeight
+        ){
+
+            break;
+
+        }
+
+
+        const dot =
+        document.createElement(
+            "div"
+        );
+
+
+        dot.className =
+        "dot";
+
+
+        dot.style.left =
+        x+25+"px";
+
+
+        dot.style.top =
+        y+25+"px";
+
+
+        trajectory.appendChild(
+        dot
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ADD BLOCK
+===================================================== */
+
+function addBlock(
+    type,
+    left,
+    bottom,
+    width,
+    height,
+    hp
+){
+
+    const block =
+    document.createElement(
+        "div"
+    );
+
+
+    block.className =
+    "block "+type;
+
+
+    block.style.left =
+    left+"%";
+
+
+    block.style.bottom =
+    bottom+"px";
+
+
+    block.style.width =
+    width+"%";
+
+
+    block.style.height =
+    height+"px";
+
+
+    block.dataset.hp =
+    hp;
+
+
+    block.dataset.maxhp =
+    hp;
+
+
+    block.dataset.dead =
+    "0";
+
+
+    castle.appendChild(
+    block
+    );
+
+}
+
+
+/* =====================================================
+   ADD PIG
+===================================================== */
+
+function addPig(
+    left,
+    bottom
+){
+
+    const pig =
+    document.createElement(
+        "div"
+    );
+
+
+    pig.className =
+    "pig";
+
+
+    pig.style.left =
+    left+"%";
+
+
+    pig.style.bottom =
+    bottom+"px";
+
+
+    pig.dataset.hp =
+    "100";
+
+
+    const shirt =
+    document.createElement(
+        "div"
+    );
+
+    shirt.className =
+    "teacherShirt";
+
+
+    const tie =
+    document.createElement(
+        "div"
+    );
+
+    tie.className =
+    "teacherTie";
+
+
+    const pocket =
+    document.createElement(
+        "div"
+    );
+
+    pocket.className =
+    "teacherPocket";
+
+
+    const eye1 =
+    document.createElement(
+        "div"
+    );
+
+    eye1.className =
+    "pigEye1";
+
+
+    const eye2 =
+    document.createElement(
+        "div"
+    );
+
+    eye2.className =
+    "pigEye2";
+
+
+    const snout =
+    document.createElement(
+        "div"
+    );
+
+    snout.className =
+    "pigSnout";
+
+
+    pig.appendChild(
+        shirt
+    );
+
+    pig.appendChild(
+        tie
+    );
+
+    pig.appendChild(
+        pocket
+    );
+
+    pig.appendChild(
+        eye1
+    );
+
+    pig.appendChild(
+        eye2
+    );
+
+    pig.appendChild(
+        snout
+    );
+
+
+    castle.appendChild(
+        pig
+    );
+
+}
+
+
+/* =====================================================
+   LEVEL 1
+===================================================== */
+
+function level1(){
+
+    /*
+        fondasi
+    */
+
+    addBlock(
+        "wood",
+        0,
+        0,
+        100,
+        27,
+        90
+    );
+
+
+    addBlock(
+        "stone",
+        0,
+        27,
+        20,
+        125,
+        150
+    );
+
+
+    addBlock(
+        "stone",
+        80,
+        27,
+        20,
+        125,
+        150
+    );
+
+
+    addBlock(
+        "wood",
+        15,
+        27,
+        18,
+        120,
+        90
+    );
+
+
+    addBlock(
+        "wood",
+        67,
+        27,
+        18,
+        120,
+        90
+    );
+
+
+    addBlock(
+        "glass",
+        35,
+        27,
+        12,
+        115,
+        42
+    );
+
+
+    addBlock(
+        "glass",
+        53,
+        27,
+        12,
+        115,
+        42
+    );
+
+
+    addBlock(
+        "wood",
+        0,
+        147,
+        100,
+        27,
+        90
+    );
+
+
+    /*
+        guru
+    */
+
+    addPig(
+        14,
+        174
+    );
+
+
+    addPig(
+        45,
+        174
+    );
+
+
+    addPig(
+        76,
+        174
+    );
+
+
+    /*
+        lantai kedua
+    */
+
+    addBlock(
+        "stone",
+        23,
+        174,
+        13,
+        105,
+        145
+    );
+
+
+    addBlock(
+        "stone",
+        64,
+        174,
+        13,
+        105,
+        145
+    );
+
+
+    addBlock(
+        "wood",
+        20,
+        279,
+        60,
+        26,
+        85
+    );
+
+
+    addPig(
+        46,
+        306
+    );
+
+
+    addBlock(
+        "wood",
+        34,
+        332,
+        32,
+        84,
+        80
+    );
+
+
+    addBlock(
+        "wood",
+        25,
+        416,
+        50,
+        25,
+        75
+    );
+
+}
+
+
+/* =====================================================
+   LEVEL 2
+===================================================== */
+
+function level2(){
+
+    addBlock(
+        "stone",
+        0,
+        0,
+        100,
+        27,
+        180
+    );
+
+
+    addBlock(
+        "wood",
+        8,
+        27,
+        18,
+        170,
+        90
+    );
+
+
+    addBlock(
+        "wood",
+        74,
+        27,
+        18,
+        170,
+        90
+    );
+
+
+    addBlock(
+        "glass",
+        27,
+        27,
+        18,
+        160,
+        45
+    );
+
+
+    addBlock(
+        "glass",
+        55,
+        27,
+        18,
+        160,
+        45
+    );
+
+
+    addBlock(
+        "wood",
+        0,
+        197,
+        100,
+        27,
+        95
+    );
+
+
+    addPig(
+        14,
+        224
+    );
+
+
+    addPig(
+        45,
+        224
+    );
+
+
+    addPig(
+        76,
+        224
+    );
+
+
+    addBlock(
+        "stone",
+        15,
+        224,
+        16,
+        105,
+        140
+    );
+
+
+    addBlock(
+        "stone",
+        69,
+        224,
+        16,
+        105,
+        140
+    );
+
+
+    addBlock(
+        "wood",
+        15,
+        329,
+        70,
+        26,
+        85
+    );
+
+
+    addPig(
+        45,
+        355
+    );
+
+
+    addBlock(
+        "glass",
+        39,
+        355,
+        10,
+        95,
+        40
+    );
+
+
+    addBlock(
+        "glass",
+        51,
+        355,
+        10,
+        95,
+        40
+    );
+
+
+    addBlock(
+        "wood",
+        28,
+        450,
+        45,
+        25,
+        75
+    );
+
+}
+
+
+/* =====================================================
+   LEVEL 3
+===================================================== */
+
+function level3(){
+
+    addBlock(
+        "stone",
+        0,
+        0,
+        100,
+        27,
+        200
+    );
+
+
+    addBlock(
+        "stone",
+        5,
+        27,
+        17,
+        190,
+        180
+    );
+
+
+    addBlock(
+        "stone",
+        78,
+        27,
+        17,
+        190,
+        180
+    );
+
+
+    addBlock(
+        "glass",
+        23,
+        27,
+        15,
+        180,
+        45
+    );
+
+
+    addBlock(
+        "glass",
+        62,
+        27,
+        15,
+        180,
+        45
+    );
+
+
+    addBlock(
+        "wood",
+        0,
+        217,
+        100,
+        27,
+        100
+    );
+
+
+    addPig(
+        12,
+        244
+    );
+
+
+    addPig(
+        44,
+        244
+    );
+
+
+    addPig(
+        76,
+        244
+    );
+
+
+    addBlock(
+        "wood",
+        18,
+        244,
+        16,
+        140,
+        85
+    );
+
+
+    addBlock(
+        "stone",
+        42,
+        244,
+        16,
+        140,
+        150
+    );
+
+
+    addBlock(
+        "wood",
+        66,
+        244,
+        16,
+        140,
+        85
+    );
+
+
+    addBlock(
+        "wood",
+        18,
+        384,
+        64,
+        26,
+        90
+    );
+
+
+    addPig(
+        44,
+        410
+    );
+
+
+    addBlock(
+        "glass",
+        39,
+        410,
+        10,
+        100,
+        40
+    );
+
+
+    addBlock(
+        "glass",
+        51,
+        410,
+        10,
+        100,
+        40
+    );
+
+
+    addBlock(
+        "wood",
+        30,
+        510,
+        40,
+        25,
+        80
+    );
+
+}
+
+
+/* =====================================================
+   BUILD LEVEL
+===================================================== */
+
+function buildLevel(){
+
+    castle.innerHTML =
+    "";
+
+
+    birds =
+    5;
+
+
+    birdsCount.textContent =
+    birds;
+
+
+    levelBadge.textContent =
+    "LEVEL "+level;
+
+
+    levelText.textContent =
+    "LEVEL "+level;
+
+
+    if(
+        level===1
+    ){
+
+        level1();
+
+    }
+
+    else if(
+        level===2
+    ){
+
+        level2();
+
+    }
+
+    else{
+
+        level3();
+
+    }
+
+
+    spawnBird();
+
+}
+
+
+/* =====================================================
+   LEVEL COMPLETE
+===================================================== */
+
+function levelComplete(){
+
+    flying =
+    false;
+
+
+    hidePhysics();
+
+
+    message.style.display =
+    "block";
+
+
+    messageTitle.textContent =
+    "🎉 LEVEL "+level+" SELESAI!";
+
+
+    messageText.innerHTML =
+    `
+        Semua guru berhasil dikalahkan!
+
+        <br><br>
+
+        Skor:
+        <b>${score}</b>
+    `;
+
+
+    if(
+        level<3
+    ){
+
+        nextButton.style.display =
+        "inline-block";
+
+    }
+
+    else{
+
+        nextButton.style.display =
+        "none";
+
+
+        messageText.innerHTML +=
+        `
+            <br><br>
+            🏆 SEMUA LEVEL SELESAI!
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   GAME OVER
+===================================================== */
+
+function gameOver(){
+
+    flying =
+    false;
+
+
+    hidePhysics();
+
+
+    message.style.display =
+    "block";
+
+
+    messageTitle.textContent =
+    "💥 GAME OVER";
+
+
+    messageText.innerHTML =
+    `
+        Burung kamu habis.
+
+        <br><br>
+
+        Skor:
+        <b>${score}</b>
+    `;
+
+
+    nextButton.style.display =
+    "none";
+
+}
+
+
+/* =====================================================
+   NEXT LEVEL
+===================================================== */
+
+nextButton.addEventListener(
+"click",
+function(){
+
+    if(
+        level>=3
+    ){
+
+        return;
+
+    }
+
+
+    level++;
+
+
+    message.style.display =
+    "none";
+
+
+    buildLevel();
+
+});
+
+
+/* =====================================================
+   RESTART
+===================================================== */
+
+restartButton.addEventListener(
+"click",
+function(){
+
+    location.reload();
+
+});
+
+
+/* =====================================================
+   START
+===================================================== */
+
+buildLevel();
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+window.addEventListener(
+"resize",
+function(){
+
+    if(
+        !flying &&
+        !dragging
+    ){
+
+        spawnBird();
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
