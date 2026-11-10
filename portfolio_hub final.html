@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portofolio Kolaboratif — Elbert, Joy & Jason</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandDark: '#0B0F19',
+            cardDark: '#131B2E',
+            elbert: '#8E44AD',
+            joy: '#174F86',
+            jason: '#F47B20',
+            mooncake: '#DFB259',
+            moonRed: '#A8232B'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body {
+      background-color: #0B0F19;
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+    }
+    .gradient-hero {
+      background: radial-gradient(circle at 50% 20%, rgba(142, 68, 173, 0.15) 0%, rgba(23, 79, 134, 0.15) 35%, rgba(11, 15, 25, 1) 75%);
+    }
+    .glass-card {
+      background: rgba(19, 27, 46, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card:hover {
+      border-color: rgba(223, 178, 89, 0.4);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0B0F19;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="custom-scrollbar min-h-screen flex flex-col justify-between">
+
+  <!-- NAVBAR -->
+  <nav class="sticky top-0 z-40 bg-[#0B0F19]/80 backdrop-blur-md border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-blue-600 to-amber-500 flex items-center justify-center font-bold text-white shadow-lg">
+          EJJ
+        </div>
+        <div>
+          <span class="font-bold text-lg tracking-wide text-white block leading-none">TEAM PORTFOLIO</span>
+          <span class="text-xs text-slate-400 font-medium">SMA BPK PENABUR HOLIS</span>
+        </div>
+      </div>
+
+      <div class="hidden md:flex items-center space-x-8 text-sm font-medium">
+        <a href="#cv-section" class="hover:text-amber-400 transition-colors">CV Anggota</a>
+        <a href="#project-section" class="hover:text-amber-400 transition-colors">Proyek Utama</a>
+        <a href="#stats-section" class="hover:text-amber-400 transition-colors">Ringkasan Tim</a>
+      </div>
+
+      <button onclick="openTabModal('mooncake')" class="px-4 py-2 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition-all flex items-center gap-2">
+        <i class="fa-solid fa-moon text-amber-400"></i>
+        Mooncake Event
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <header class="gradient-hero pt-16 pb-20 px-6 text-center relative overflow-hidden">
+    <div class="max-w-4xl mx-auto relative z-10">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-amber-300 mb-6 backdrop-blur-md">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Showcase Portofolio Kolaboratif Tim (7 Proyek Lengkap)
+      </div>
+
+      <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+        Satu Wadah, Tiga Talenta,<br/>
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-blue-400 to-amber-400">Seluruh Karya Digital Tim</span>
+      </h1>
+
+      <p class="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mx-auto mb-10 font-light">
+        Kumpulan Curriculum Vitae interaktif, Website Cloning, Interactive Game, Digital Storybook, serta Event Website karya siswa SMA BPK PENABUR HOLIS: <strong class="text-white font-semibold">Elbert Mesianik</strong>, <strong class="text-white font-semibold">Joy Yehezkiel</strong>, dan <strong class="text-white font-semibold">Jason Armando</strong>.
+      </p>
+
+      <!-- FILTER BUTTONS -->
+      <div class="flex flex-wrap justify-center gap-2.5">
+        <button onclick="filterCards('all')" id="btn-all" class="filter-btn px-4 py-2 rounded-xl font-medium text-xs transition-all bg-amber-500 text-slate-950 font-semibold shadow-lg shadow-amber-500/20">
+          <i class="fa-solid fa-border-all mr-1.5"></i> Semua Karya (7)
+        </button>
+        <button onclick="filterCards('cv')" id="btn-cv" class="filter-btn px-4 py-2 rounded-xl font-medium text-xs transition-all bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10">
+          <i class="fa-solid fa-id-card mr-1.5"></i> CV Anggota (3)
+        </button>
+        <button onclick="filterCards('cloning')" id="btn-cloning" class="filter-btn px-4 py-2 rounded-xl font-medium text-xs transition-all bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10">
+          <i class="fa-solid fa-copy mr-1.5"></i> Website Cloning
+        </button>
+        <button onclick="filterCards('storybook')" id="btn-storybook" class="filter-btn px-4 py-2 rounded-xl font-medium text-xs transition-all bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10">
+          <i class="fa-solid fa-book-open mr-1.5"></i> Storybook Digital
+        </button>
+        <button onclick="filterCards('game')" id="btn-game" class="filter-btn px-4 py-2 rounded-xl font-medium text-xs transition-all bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10">
+          <i class="fa-solid fa-gamepad mr-1.5"></i> Game Interaktif
+        </button>
+        <button onclick="filterCards('project')" id="btn-project" class="filter-btn px-4 py-2 rounded-xl font-medium text-xs transition-all bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10">
+          <i class="fa-solid fa-moon mr-1.5"></i> Mooncake Event
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-6 py-12 flex-1 w-full space-y-16">
+
+    <!-- TEAM CV SHOWCASE -->
+    <section id="cv-section" class="scroll-mt-24">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-white/10 pb-4">
+        <div>
+          <h2 class="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+            <span class="w-3 h-8 bg-purple-500 rounded-full inline-block"></span>
+            Curriculum Vitae Anggota Tim
+          </h2>
+          <p class="text-slate-400 text-sm mt-1">CV interaktif masing-masing anggota dengan latar belakang & spesialisasi unik.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- CARD 1: ELBERT -->
+        <div class="card-item cv glass-card rounded-2xl p-6 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                Science & Public Speaking
+              </span>
+              <span class="text-slate-500 text-xs"><i class="fa-solid fa-code"></i> HTML / CSS</span>
+            </div>
+            
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-14 h-14 rounded-full bg-purple-900/60 border-2 border-purple-500 flex items-center justify-center font-bold text-lg text-purple-200 shrink-0">
+                EM
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">Elbert Mesianik P.</h3>
+                <p class="text-xs text-purple-400 font-medium">Class 11 IPA Murni • Target SNBP ITB</p>
+              </div>
+            </div>
+
+            <p class="text-slate-300 text-xs leading-relaxed mb-6 font-light">
+              Science Enthusiast & Public Speaker dari Academy of Champions. Memiliki pengalaman riset PJBL Battery Mud, pengurus OSIS SION, dan berprestasi sains.
+            </p>
+
+            <div class="space-y-2 mb-6 text-xs text-slate-400 border-t border-b border-white/5 py-3">
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-medal text-amber-400 mr-2"></i>Prestasi:</span>
+                <span class="text-slate-200 font-medium">Silver Medal IKMC 2025</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-flask text-purple-400 mr-2"></i>Riset/Project:</span>
+                <span class="text-slate-200 font-medium">PJBL Battery Mud (1A)</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-bullseye text-purple-400 mr-2"></i>Target Utama:</span>
+                <span class="text-slate-200 font-medium">ITB (Jalur SNBP)</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="openTabModal('elbert')" class="w-full py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-lg shadow-purple-900/40">
+            <i class="fa-solid fa-eye"></i> Buka CV Elbert Putranami
+          </button>
+        </div>
+
+        <!-- CARD 2: JOY -->
+        <div class="card-item cv glass-card rounded-2xl p-6 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                Academic & Science
+              </span>
+              <span class="text-slate-500 text-xs"><i class="fa-solid fa-code"></i> HTML / CSS</span>
+            </div>
+            
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-14 h-14 rounded-full bg-blue-900/60 border-2 border-blue-500 flex items-center justify-center font-bold text-lg text-blue-200 shrink-0">
+                JY
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-white group-hover:text-blue-300 transition-colors">Joy Yehezkiel T.</h3>
+                <p class="text-xs text-blue-400 font-medium">Calon Mine Engineer • ITB FTTM</p>
+              </div>
+            </div>
+
+            <p class="text-slate-300 text-xs leading-relaxed mb-6 font-light">
+              CV Akademik terstruktur dengan nilai rata-rata 93.8. Fokus pada fisika, matematika, serta eksplorasi pengelolaan sumber daya alam pertambangan.
+            </p>
+
+            <div class="space-y-2 mb-6 text-xs text-slate-400 border-t border-b border-white/5 py-3">
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-trophy text-blue-400 mr-2"></i>Prestasi:</span>
+                <span class="text-slate-200 font-medium">Juara 1 Fusion UNPAR 2026</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-chart-line text-blue-400 mr-2"></i>Rata-rata Rapor:</span>
+                <span class="text-emerald-400 font-semibold">93.8</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-bullseye text-blue-400 mr-2"></i>Target Utama:</span>
+                <span class="text-slate-200 font-medium">ITB — FTTM</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="openTabModal('joy')" class="w-full py-2.5 px-4 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-950/40">
+            <i class="fa-solid fa-eye"></i> Buka CV Joy Akademik
+          </button>
+        </div>
+
+        <!-- CARD 3: JASON -->
+        <div class="card-item cv glass-card rounded-2xl p-6 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                Electrical & Tech
+              </span>
+              <span class="text-slate-500 text-xs"><i class="fa-solid fa-code"></i> HTML / Grid</span>
+            </div>
+            
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-14 h-14 rounded-full bg-orange-900/60 border-2 border-orange-500 flex items-center justify-center font-bold text-lg text-orange-200 shrink-0">
+                JA
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-white group-hover:text-orange-300 transition-colors">Jason Armando</h3>
+                <p class="text-xs text-orange-400 font-medium">Electrical Engineering • NTU Target</p>
+              </div>
+            </div>
+
+            <p class="text-slate-300 text-xs leading-relaxed mb-6 font-light">
+              Siswa Teknik Elektro SMK Penabur Holis dengan keahlian Java, sistem kelistrikan, dan olahraga Tenis Meja. Menargetkan studi di NTU Singapore.
+            </p>
+
+            <div class="space-y-2 mb-6 text-xs text-slate-400 border-t border-b border-white/5 py-3">
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-laptop-code text-orange-400 mr-2"></i>Skill Utama:</span>
+                <span class="text-slate-200 font-medium">Java, Math (90%)</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-table-tennis-paddle-ball text-orange-400 mr-2"></i>Olahraga:</span>
+                <span class="text-slate-200 font-medium">Juara 1 Tenis Meja</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-building-columns text-orange-400 mr-2"></i>Target Kampus:</span>
+                <span class="text-slate-200 font-medium">NTU Singapore 🇸🇬</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="openTabModal('jason')" class="w-full py-2.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-lg shadow-orange-950/40">
+            <i class="fa-solid fa-eye"></i> Buka CV Jason Elektro
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- OTHER PROJECTS SECTION (CLONING, GAME, STORYBOOK) -->
+    <section id="other-projects-section" class="scroll-mt-24 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-white/10 pb-4">
+        <div>
+          <h2 class="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+            <span class="w-3 h-8 bg-emerald-500 rounded-full inline-block"></span>
+            Proyek Aplikasi & Media Digital
+          </h2>
+          <p class="text-slate-400 text-sm mt-1">Hasil karya penugasan Website Cloning, Game Interaktif, dan Storybook Digital.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- CARD: CLONING PROJECT -->
+        <div class="card-item cloning glass-card rounded-2xl p-6 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Frontend Development
+              </span>
+              <span class="text-slate-500 text-xs"><i class="fa-solid fa-link"></i> Bitly Link</span>
+            </div>
+            
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-900/60 border border-emerald-500 flex items-center justify-center text-emerald-300 font-bold text-xl shrink-0">
+                <i class="fa-solid fa-copy"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors">Website Cloning</h3>
+                <p class="text-xs text-emerald-400 font-medium">Elbert, Joy & Jason Collaboration</p>
+              </div>
+            </div>
+
+            <p class="text-slate-300 text-xs leading-relaxed mb-6 font-light">
+              Proyek replikasi dan pengkodean ulang tampilan landing page modern berbasis HTML & CSS untuk melatih presisi antarmuka.
+            </p>
+
+            <div class="space-y-2 mb-6 text-xs text-slate-400 border-t border-b border-white/5 py-3">
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-globe text-emerald-400 mr-2"></i>Sumber Link:</span>
+                <span class="text-slate-200 font-medium">bit.ly/ElbertJoyJason...</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-layer-group text-emerald-400 mr-2"></i>Fokus:</span>
+                <span class="text-slate-200 font-medium">Pixel Perfect Layout</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="openTabModal('cloning')" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Website Cloning
+          </button>
+        </div>
+
+        <!-- CARD: STORYBOOK PROJECT -->
+        <div class="card-item storybook glass-card rounded-2xl p-6 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                Digital Storybook
+              </span>
+              <span class="text-slate-500 text-xs"><i class="fa-solid fa-share-nodes"></i> Gemini Share</span>
+            </div>
+            
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-12 h-12 rounded-xl bg-cyan-900/60 border border-cyan-500 flex items-center justify-center text-cyan-300 font-bold text-xl shrink-0">
+                <i class="fa-solid fa-book-open"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors">Storybook Digital</h3>
+                <p class="text-xs text-cyan-400 font-medium">Cerita & Visual Interaktif</p>
+              </div>
+            </div>
+
+            <p class="text-slate-300 text-xs leading-relaxed mb-6 font-light">
+              Buku cerita digital interaktif dengan alur narasi edukatif, navigasi visual, dan konten multimedia karya tim.
+            </p>
+
+            <div class="space-y-2 mb-6 text-xs text-slate-400 border-t border-b border-white/5 py-3">
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-link text-cyan-400 mr-2"></i>Sumber Link:</span>
+                <span class="text-slate-200 font-medium">share.gemini.google...</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-sliders text-cyan-400 mr-2"></i>Fitur:</span>
+                <span class="text-slate-200 font-medium">Navigasi Interaktif</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="openTabModal('storybook')" class="w-full py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-lg shadow-cyan-950/40">
+            <i class="fa-solid fa-book-open-reader"></i> Buka Storybook
+          </button>
+        </div>
+
+        <!-- CARD: GAME PROJECT -->
+        <div class="card-item game glass-card rounded-2xl p-6 flex flex-col justify-between hover:-translate-y-1 transition-all duration-300 group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-pink-500/20 text-pink-300 border border-pink-500/30">
+                Interactive Game
+              </span>
+              <span class="text-slate-500 text-xs"><i class="fa-solid fa-gamepad"></i> s.id Shortlink</span>
+            </div>
+            
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-12 h-12 rounded-xl bg-pink-900/60 border border-pink-500 flex items-center justify-center text-pink-300 font-bold text-xl shrink-0">
+                <i class="fa-solid fa-dice-d20"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white group-hover:text-pink-300 transition-colors">Game Interaktif</h3>
+                <p class="text-xs text-pink-400 font-medium">Arcade / Web Gaming</p>
+              </div>
+            </div>
+
+            <p class="text-slate-300 text-xs leading-relaxed mb-6 font-light">
+              Game berbasis web interaktif dengan sistem permainan yang menyenangkan, animasi, serta kontrol responsif.
+            </p>
+
+            <div class="space-y-2 mb-6 text-xs text-slate-400 border-t border-b border-white/5 py-3">
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-link text-pink-400 mr-2"></i>Short Link:</span>
+                <span class="text-slate-200 font-medium">s.id/gemjoyelbertjason</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span><i class="fa-solid fa-desktop text-pink-400 mr-2"></i>Platform:</span>
+                <span class="text-slate-200 font-medium">Web Desktop & Mobile</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="openTabModal('game')" class="w-full py-2.5 px-4 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-lg shadow-pink-950/40">
+            <i class="fa-solid fa-play"></i> Mainkan Game
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SPECIAL PROJECT SHOWCASE (MOONCAKE) -->
+    <section id="project-section" class="scroll-mt-24">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-white/10 pb-4">
+        <div>
+          <h2 class="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+            <span class="w-3 h-8 bg-amber-500 rounded-full inline-block"></span>
+            Proyek Acara Kebudayaan
+          </h2>
+          <p class="text-slate-400 text-sm mt-1">Website utama perayaan kebudayaan sekolah skala besar.</p>
+        </div>
+      </div>
+
+      <div class="card-item project glass-card rounded-3xl p-8 relative overflow-hidden border border-amber-500/30">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-7 space-y-5">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-bold text-amber-300">
+              <i class="fa-solid fa-moon"></i> MOONCAKE FESTIVAL 2026
+            </div>
+
+            <h3 class="text-3xl font-extrabold text-white leading-tight font-display">
+              Perayaan Kebudayaan Tionghoa<br/>
+              <span class="text-amber-400">SMA BPK PENABUR HOLIS</span>
+            </h3>
+
+            <p class="text-slate-300 text-sm leading-relaxed font-light">
+              Platform website interaktif lengkap dengan hitung mundur acara (23-24 Oktober 2026), rincian 5 panggung festival (Pidato Mandarin, Menyanyi, Tari, Fashion Show, Drama Chang-E), dan penambahan pengingat ke Google Calendar.
+            </p>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 py-2">
+              <div class="p-3 rounded-xl bg-white/5 border border-white/5 text-center">
+                <span class="block text-amber-400 font-bold text-lg">01</span>
+                <span class="text-[11px] text-slate-400">Speech Contest</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white/5 border border-white/5 text-center">
+                <span class="block text-amber-400 font-bold text-lg">02</span>
+                <span class="text-[11px] text-slate-400">Singing Contest</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white/5 border border-white/5 text-center">
+                <span class="block text-amber-400 font-bold text-lg">03</span>
+                <span class="text-[11px] text-slate-400">Fashion Show</span>
+              </div>
+              <div class="p-3 rounded-xl bg-white/5 border border-white/5 text-center">
+                <span class="block text-red-400 font-bold text-lg">04</span>
+                <span class="text-[11px] text-slate-400">Drama Chang-E</span>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-4 pt-2">
+              <button onclick="openTabModal('mooncake')" class="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-amber-500/20 flex items-center gap-2">
+                <i class="fa-solid fa-window-restore"></i> Buka Website Mooncake
+              </button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5">
+            <div class="bg-slate-900/90 rounded-2xl p-5 border border-amber-500/20 text-center space-y-4">
+              <span class="text-xs font-semibold text-amber-400 tracking-widest uppercase">Pelaksanaan Event</span>
+              <div class="text-2xl font-bold text-white">23 — 24 Oktober 2026</div>
+              <div class="text-xs text-slate-400">Kampus SMA BPK PENABUR Holis, Bandung</div>
+
+              <div class="pt-3 border-t border-white/10 flex justify-around text-slate-300 text-xs">
+                <div>
+                  <i class="fa-solid fa-users text-amber-400 mb-1 block"></i>
+                  <span>Siswa & Komunitas</span>
+                </div>
+                <div>
+                  <i class="fa-solid fa-calendar-check text-amber-400 mb-1 block"></i>
+                  <span>2 Hari Acara</span>
+                </div>
+                <div>
+                  <i class="fa-solid fa-masks-theater text-amber-400 mb-1 block"></i>
+                  <span>Peak Drama</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEAM SUMMARY & METRICS -->
+    <section id="stats-section" class="glass-card rounded-3xl p-8 border border-white/10">
+      <div class="text-center max-w-xl mx-auto mb-8">
+        <h3 class="text-xl font-bold text-white mb-2">Ringkasan Portofolio Tim</h3>
+        <p class="text-xs text-slate-400">Statistik pencapaian dan keahlian kolektif dari ketiga anggota.</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div class="p-4 rounded-2xl bg-white/5">
+          <div class="text-3xl font-extrabold text-purple-400 mb-1">7</div>
+          <div class="text-xs text-slate-400 font-medium">Total Proyek & Karya</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-white/5">
+          <div class="text-3xl font-extrabold text-blue-400 mb-1">93.8</div>
+          <div class="text-xs text-slate-400 font-medium">Nilai Tertinggi (Joy)</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-white/5">
+          <div class="text-3xl font-extrabold text-orange-400 mb-1">2</div>
+          <div class="text-xs text-slate-400 font-medium">Target PTN/PTS Top</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-white/5">
+          <div class="text-3xl font-extrabold text-amber-400 mb-1">100%</div>
+          <div class="text-xs text-slate-400 font-medium">Integrasi Web Kode</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-white/10 py-8 px-6 bg-[#070A12] text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        © 2026 Portofolio Kolaboratif Elbert, Joy & Jason — SMA BPK PENABUR Holis.
+      </div>
+      <div class="flex gap-4 text-slate-400">
+        <span><i class="fa-solid fa-location-dot text-amber-500 mr-1"></i> Bandung, Jawa Barat</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- FULLSCREEN MODAL PREVIEW -->
+  <div id="previewModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex-col transition-all duration-300">
+    <!-- MODAL BAR -->
+    <div class="bg-[#0F172A] border-b border-white/10 px-6 py-3 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-3">
+        <span id="modalBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+          Preview
+        </span>
+        <h4 id="modalTitle" class="font-bold text-white text-sm">Title</h4>
+      </div>
+      <div class="flex items-center gap-3">
+        <a id="externalLinkBtn" href="#" target="_blank" class="px-3 py-1 rounded bg-white/10 hover:bg-white/20 text-white text-xs flex items-center gap-1">
+          <i class="fa-solid fa-external-link"></i> Tab Baru
+        </a>
+        <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-red-500 text-white flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL IFRAME CONTENT -->
+    <div class="flex-1 w-full bg-white relative">
+      <iframe id="previewIframe" class="w-full h-full border-0"></iframe>
+    </div>
+  </div>
+
+  <!-- EMBEDDED PROJECT SOURCES -->
+  <script>
+    // Project Source Registry
+    const projectSources = {
+      elbert: `CV_Elbert_Mesianik_Putranami.html`,
+      joy: `Joy ganteng.html`,
+      jason: `Jason.A.html`,
+      mooncake: `Mooncake.html`,
+      cloning: `https://bit.ly/ElbertJoyJasonCloningLink`,
+      storybook: `https://share.gemini.google/6poJYv3Hp8Oz`,
+      game: `https://s.id/gemjoyelbertjason`
+    };
+
+    const projectTitles = {
+      elbert: 'CV — Elbert Mesianik Putranami',
+      joy: 'CV Akademik — Joy Yehezkiel Tarigan',
+      jason: 'CV Teknik Elektro — Jason Armando',
+      mooncake: 'Mooncake Festival 2026 — SMA BPK PENABUR HOLIS',
+      cloning: 'Website Cloning Project (Elbert, Joy, Jason)',
+      storybook: 'Digital Storybook Project',
+      game: 'Interactive Game Project'
+    };
+
+    const projectBadges = {
+      elbert: 'ELBERT (CV)',
+      joy: 'JOY (CV)',
+      jason: 'JASON (CV)',
+      mooncake: 'EVENT WEBSITE',
+      cloning: 'WEB CLONING',
+      storybook: 'STORYBOOK',
+      game: 'GAME PROJECT'
+    };
+
+    function filterCards(type) {
+      const cards = document.querySelectorAll('.card-item');
+      const buttons = document.querySelectorAll('.filter-btn');
+
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-amber-500', 'text-slate-950', 'font-semibold');
+        btn.classList.add('bg-white/5', 'text-slate-300');
+      });
+
+      if (type === 'all') {
+        document.getElementById('btn-all').classList.add('bg-amber-500', 'text-slate-950', 'font-semibold');
+        cards.forEach(card => card.style.display = card.classList.contains('project') ? 'block' : 'flex');
+      } else {
+        const activeBtn = document.getElementById(`btn-${type}`);
+        if (activeBtn) activeBtn.classList.add('bg-amber-500', 'text-slate-950', 'font-semibold');
+        
+        cards.forEach(card => {
+          if (card.classList.contains(type)) {
+            card.style.display = card.classList.contains('project') ? 'block' : 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+    }
+
+    function openTabModal(key) {
+      const modal = document.getElementById('previewModal');
+      const iframe = document.getElementById('previewIframe');
+      const title = document.getElementById('modalTitle');
+      const badge = document.getElementById('modalBadge');
+      const externalBtn = document.getElementById('externalLinkBtn');
+
+      const url = projectSources[key] || '';
+
+      title.textContent = projectTitles[key] || 'Pratinjau Proyek';
+      badge.textContent = projectBadges[key] || 'Preview';
+      externalBtn.href = url;
+      iframe.src = url;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('previewModal');
+      const iframe = document.getElementById('previewIframe');
+
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      iframe.src = '';
+      document.body.style.overflow = 'auto';
+    }
+
+    // Close on Escape Key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html>
