@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>Classroom Alert System</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d30;--line:#263650;--muted:#9fb0c8;--text:#edf4ff;--blue:#65a9ff;--green:#50d6a0;--amber:#ffc66d;--red:#ff7777}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background-color:#0b1220;background-image:radial-gradient(circle at 15% 0%,#172c4a 0,#0b1220 42%);background-attachment:fixed;color:var(--text);font:15px system-ui,-apple-system,Segoe UI,sans-serif;-webkit-tap-highlight-color:transparent}
+main{max-width:1000px;margin:auto;padding:24px 16px 50px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:clamp(25px,4vw,36px);margin:0}
+.sub{color:var(--muted);margin-top:6px}
+.pill{border:1px solid var(--line);border-radius:99px;padding:6px 12px;color:var(--muted);font-size:13px;display:inline-block}
+.pill.ok{color:var(--green);border-color:#1f6b52}
+.tabs{display:flex;gap:8px;margin:18px 0}
+.tab,button{border:1px solid var(--line);border-radius:11px;padding:11px 15px;background:#182840;color:var(--text);font:inherit;font-weight:650;cursor:pointer}
+.tab.active,button.primary{background:#1e5ca1;border-color:#438bd7}
+button:disabled{opacity:.45;cursor:not-allowed}
+.panel{background:rgba(18,29,48,.94);border:1px solid var(--line);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 12px 35px #0002}
+.grid{display:grid;grid-template-columns:1.3fr .7fr;gap:14px}
+.videoWrap{position:relative;background:#050a12;border-radius:14px;overflow:hidden;min-height:250px;display:grid;place-items:center}
+video{width:100%;max-height:520px;object-fit:cover;transform:scaleX(-1)}
+.placeholder{color:var(--muted);padding:30px;text-align:center}
+.status{display:flex;align-items:center;gap:9px;font-weight:700;font-size:18px}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--amber);box-shadow:0 0 14px currentColor;flex:none}
+.dot.green{background:var(--green)}
+.dot.red{background:var(--red)}
+.big{font-size:30px;font-weight:800;margin:10px 0}
+.muted{color:var(--muted);line-height:1.5}
+.small{font-size:13px;line-height:1.5;margin-top:6px}
+.okTxt{color:var(--green)}
+.warnTxt{color:var(--amber)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+.field input{background:#081323;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--text);font-size:16px;width:100%}
+.field input[type=range]{padding:0;accent-color:var(--blue)}
+code{background:#07101d;border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:inline-block;overflow-wrap:anywhere;color:#b7d8ff;font-size:12px}
+.notice{border-left:3px solid var(--amber);padding:10px 12px;background:#2a2418;border-radius:8px;color:#ffe0a8;line-height:1.5}
+.hidden{display:none!important}
+.log{max-height:150px;overflow:auto;font-size:13px;color:var(--muted);line-height:1.7}
+.meter{height:8px;border-radius:9px;background:#07101d;border:1px solid var(--line);overflow:hidden;margin-top:6px}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--amber),var(--red));transition:width .12s}
+.pair{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;margin-top:12px}
+#qr{background:#fff;padding:10px;border-radius:12px;width:196px;min-height:196px;display:grid;place-items:center;color:#334;font-size:12px;text-align:center}
+#qr img,#qr canvas{display:block;max-width:100%}
+.codeBig{font:800 34px ui-monospace,Menlo,Consolas,monospace;letter-spacing:.18em;margin:2px 0 10px;color:#b7d8ff}
+.bigBtn{width:100%;padding:18px;font-size:18px;border-radius:14px}
+.caps{margin:14px 0;line-height:1.9;font-size:14px;color:var(--muted)}
+.alertBox{background:#0c1728;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:16px}
+.overlay{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;background:#b01c1c;animation:flash .5s infinite alternate}
+@keyframes flash{from{background:#7a0f0f}to{background:#d32525}}
+.ovBox{text-align:center;max-width:420px;width:100%}
+.ovTitle{font-size:clamp(34px,10vw,56px);font-weight:900;letter-spacing:.04em;margin:8px 0}
+.ovSub{opacity:.92;margin-bottom:26px;font-size:17px}
+.stopBtn{width:100%;padding:22px;font-size:22px;border-radius:16px;background:#fff;color:#7a0f0f;border:0;font-weight:900}
+footer{color:var(--muted);font-size:12px;margin-top:22px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.videoWrap{min-height:210px}.panel{padding:14px}.pair{grid-template-columns:1fr}#qr{margin:auto}}
+</style>
+</head>
+<body>
+<main>
+ <div class="top"><div><h1>Classroom Alert System</h1><div class="sub">Prototype deteksi indikasi kantuk berbasis webcam</div></div><div class="pill">DEMO • Video diproses lokal</div></div>
+ <div class="tabs">
+  <button class="tab active" id="laptopTab">Mode Laptop</button>
+  <button class="tab" id="phoneTab">Mode HP</button>
+ </div>
+
+ <!-- ================= MODE LAPTOP ================= -->
+ <section id="laptopMode">
+  <div class="grid">
+   <div class="panel">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px"><b>Live camera</b><span class="pill" id="cameraBadge">Kamera belum aktif</span></div>
+    <div class="videoWrap"><video id="video" autoplay muted playsinline></video><div class="placeholder" id="placeholder">Aktifkan webcam untuk memulai deteksi.</div></div>
+    <div class="row" style="margin-top:14px"><button class="primary" id="startBtn">Aktifkan webcam &amp; AI</button><button id="stopBtn" disabled>Hentikan</button></div>
+   </div>
+   <div class="panel">
+    <b>Status deteksi</b>
+    <div class="status" style="margin-top:18px"><span class="dot" id="statusDot"></span><span id="statusText">Menunggu kamera</span></div>
+    <div class="big" id="statusDetail">—</div>
+    <div class="muted" id="statusHint">Sistem akan memeriksa indikator mata tertutup lama.</div>
+    <div class="small muted" style="margin-top:14px">Wajah terdeteksi: <b id="faceCount">0</b> • Skor mata tertutup</div>
+    <div class="meter"><i id="meterFill"></i></div>
+   </div>
+  </div>
+
+  <div class="panel">
+   <b>Hubungkan HP penerima</b>
+   <div class="pair">
+    <div id="qr">QR belum siap</div>
+    <div>
+     <div class="muted">Scan QR dengan kamera HP, lalu ketuk tombol hijau di HP. Atau buka halaman ini di HP → <b>Mode HP</b> → ketik kode di bawah.</div>
+     <div class="codeBig" id="peerCode">——————</div>
+     <div class="row">
+      <button class="primary" id="testBtn">Tes alarm ke HP</button>
+      <button id="copyBtn">Salin tautan</button>
+      <button id="newCodeBtn">Kode baru</button>
+     </div>
+     <div class="small muted" id="testResult"></div>
+     <div class="status" style="margin-top:12px"><span class="dot" id="connectionDot"></span><span id="connectionText" style="font-size:14px">Menunggu HP terhubung…</span></div>
+     <div class="row" style="margin-top:8px"><span class="pill" id="chP2P">Langsung: …</span><span class="pill" id="chRelay">Relay: …</span></div>
+     <div class="field"><label for="baseUrl" class="muted">Alamat halaman yang dibuka HP</label><input id="baseUrl" autocomplete="off" spellcheck="false"></div>
+     <div class="notice hidden" id="localWarn">Halaman ini dibuka dari <b>localhost/file</b>, jadi HP tidak bisa membukanya. Unggah file ini ke hosting HTTPS (disarankan), atau ketik alamat IP laptop di kolom di atas (contoh <code>http://192.168.1.5:8000/</code>).</div>
+     <div class="small muted">Tautan HP: <code id="joinLink"></code></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="panel">
+   <b>Pengaturan deteksi</b>
+   <div class="field"><label for="holdRange" class="muted">Lama mata tertutup sebelum alarm: <b id="holdVal">2,5</b> detik</label><input type="range" id="holdRange" min="1.5" max="6" step="0.5" value="2.5"></div>
+   <div class="field"><label for="thrRange" class="muted">Batas skor mata tertutup: <b id="thrVal">0.68</b> (makin kecil = makin sensitif)</label><input type="range" id="thrRange" min="0.5" max="0.85" step="0.01" value="0.68"></div>
+  </div>
+
+  <div class="panel">
+   <b>Riwayat</b><div class="log" id="log">Belum ada peringatan.</div>
+  </div>
+ </section>
+
+ <!-- ================= MODE HP ================= -->
+ <section id="phoneMode" class="hidden">
+  <div class="panel">
+   <div class="status"><span class="dot" id="phoneDot"></span><span id="phoneStatus">Belum terhubung ke laptop</span></div>
+   <p class="muted" id="phoneDetail" style="margin:8px 0 0">Masukkan kode dari laptop, lalu ketuk tombol hijau.</p>
+   <div class="field"><label for="hostCode" class="muted">Kode koneksi dari laptop</label><input id="hostCode" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" placeholder="Contoh: K7M2QX"></div>
+   <button class="primary bigBtn" id="connectBtn">Hubungkan &amp; aktifkan alarm</button>
+   <div class="small muted">Setelah diketuk, HP akan berbunyi &amp; bergetar sebentar sebagai tanda aktif.</div>
+   <div class="row" style="margin-top:12px"><button id="phoneTestBtn">Tes bunyi &amp; getar</button><button id="disconnectBtn" disabled>Putuskan</button></div>
+   <div class="caps"><div id="capSound"></div><div id="capVib"></div><div id="capWake"></div></div>
+   <div class="alertBox"><div class="muted">Status peringatan</div><div class="big" id="phoneAlert">SIAGA</div><div class="muted" id="phoneAlertHint">HP siap menerima peringatan setelah terhubung.</div></div>
+   <div class="notice" style="margin-top:16px"><b>Agar alarm pasti berbunyi:</b> naikkan volume media HP, biarkan halaman ini terbuka di layar (jangan pindah aplikasi atau mengunci layar), dan matikan mode senyap. Web tidak bisa membunyikan HP yang layarnya terkunci. iPhone/iOS tidak mendukung getar di web, jadi hanya bunyi dan layar merah.</div>
+  </div>
+ </section>
+
+ <div class="notice" style="margin-top:16px"><b>Catatan penggunaan:</b> ini prototype edukasi, bukan alat diagnosis atau pengawasan yang selalu akurat. Deteksi memakai indikator kedua mata tertutup terus-menerus selama durasi pengaturan (bawaan 2,5 detik). Minta persetujuan sekolah dan siswa, jangan menyimpan rekaman, dan jangan gunakan hasilnya untuk menghukum siswa.</div>
+ <footer>Classroom Alert System • Video dianalisis di browser laptop. Yang dikirim ke HP hanya sinyal peringatan (tanpa gambar) lewat koneksi langsung PeerJS dan relay ntfy.sh sebagai cadangan.</footer>
+</main>
+
+<div id="alarmOverlay" class="overlay hidden" role="alertdialog" aria-live="assertive">
+ <div class="ovBox">
+  <div class="ovTitle" id="alarmTitle">PERINGATAN!</div>
+  <div class="ovSub" id="alarmSub">Ada indikasi kantuk terdeteksi oleh sistem kelas.</div>
+  <button class="stopBtn" id="stopAlarmBtn">MATIKAN ALARM</button>
+ </div>
+</div>
+
+<script>
+"use strict";
+/* ---------- util ---------- */
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const num=(k,d)=>{const v=parseFloat(store.get(k,d));return isFinite(v)?v:d};
+const ALPHABET="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+const newCode=()=>{const a=new Uint8Array(6);crypto.getRandomValues(a);return Array.from(a,n=>ALPHABET[n%ALPHABET.length]).join("")};
+const cleanCode=s=>String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,12);
+const rid=()=>Math.random().toString(36).slice(2,10);
+const loadScript=srcs=>new Promise(res=>{
+  srcs=srcs.slice();
+  const next=()=>{const s=srcs.shift();if(!s)return res(false);const el=document.createElement("script");el.src=s;el.onload=()=>res(true);el.onerror=()=>{el.remove();next()};document.head.appendChild(el)};
+  next();
+});
+
+const RELAY="https://ntfy.sh/";
+const topicOf=c=>"cas-demo-"+c.toLowerCase();
+const ICE={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"},{urls:"stun:stun.cloudflare.com:3478"}]};
+const PEER_SRCS=["https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js","https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"];
+const QR_SRCS=["https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js","https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"];
+const MP_URL="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+const MODEL_URL="https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+const COOLDOWN_MS=12000,HEARTBEAT_MS=15000,ONLINE_MS=45000,ALARM_MS=20000;
+const peerReady=loadScript(PEER_SRCS);
+
+/* ---------- jalur komunikasi ganda: P2P (PeerJS) + relay (ntfy.sh) ---------- */
+function createLink(role,code,onMsg,onState){
+  const L={role,code,conns:new Set(),peer:null,es:null,relayUp:false,dead:false,dialing:false,seen:new Set(),conflicts:0};
+  const later=(fn,ms)=>setTimeout(()=>{if(!L.dead)fn()},ms);
+  const count=()=>{let n=0;L.conns.forEach(c=>{if(c.open)n++});return n};
+  const notify=()=>onState({p2p:count(),ready:!!(L.peer&&L.peer.open),relay:L.relayUp});
+  const emit=m=>{
+    if(!m||typeof m!=="object"||!m.k||!m.id||(m.r!=="lp"&&m.r!=="hp")||m.r===role)return;
+    if(L.seen.has(m.id))return;
+    L.seen.add(m.id);if(L.seen.size>300)L.seen.delete(L.seen.values().next().value);
+    onMsg(m);
+  };
+  const post=m=>{fetch(RELAY+topicOf(code),{method:"POST",body:JSON.stringify(m)}).catch(()=>{})};
+
+  // kirim lewat P2P bila ada; relay dipakai jika P2P tidak ada atau both=true
+  L.send=(k,extra,both)=>{
+    const m=Object.assign({r:role,k:k,id:rid()},extra||{});
+    let direct=false;
+    L.conns.forEach(c=>{if(c.open){try{c.send(m);direct=true}catch(e){}}});
+    if(both||!direct)post(m);
+    return m;
+  };
+
+  const relayStart=()=>{
+    if(L.dead)return;
+    try{if(L.es)L.es.close()}catch(e){}
+    try{
+      const es=new EventSource(RELAY+topicOf(code)+"/sse");L.es=es;
+      es.onopen=()=>{L.relayUp=true;notify()};
+      es.onerror=()=>{L.relayUp=false;notify()};
+      es.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.event==="message")emit(JSON.parse(d.message))}catch(x){}};
+    }catch(e){L.relayUp=false;notify()}
+  };
+
+  const hostPeer=()=>{
+    if(L.dead||!window.Peer)return;
+    const p=new Peer("cas-"+code,{config:ICE});L.peer=p;
+    p.on("open",notify);
+    p.on("connection",c=>{
+      c.on("open",()=>{L.conns.add(c);notify()});
+      c.on("data",emit);
+      const gone=()=>{L.conns.delete(c);notify()};
+      c.on("close",gone);c.on("error",gone);
+    });
+    p.on("disconnected",()=>{notify();if(!L.dead&&!p.destroyed)later(()=>{try{p.reconnect()}catch(e){}},2500)});
+    p.on("error",e=>{
+      if(e.type==="unavailable-id"){L.conflicts++;if(L.conflicts<=5)later(hostPeer,4000);else onState({conflict:true});return}
+      if(p.destroyed&&!L.dead)later(hostPeer,5000);
+    });
+  };
+
+  const phonePeer=()=>{
+    if(L.dead||!window.Peer)return;
+    const p=new Peer({config:ICE});L.peer=p;
+    p.on("open",notify);
+    p.on("disconnected",()=>{notify();if(!L.dead&&!p.destroyed)later(()=>{try{p.reconnect()}catch(e){}},2500)});
+    p.on("error",e=>{
+      if(e.type==="peer-unavailable")L.dialing=false;
+      else if(p.destroyed&&!L.dead)later(phonePeer,5000);
+    });
+  };
+  const dial=()=>{
+    if(L.dead)return;
+    const p=L.peer;
+    if(p&&!p.destroyed&&p.open&&count()===0&&!L.dialing){
+      L.dialing=true;
+      let c;
+      try{c=p.connect("cas-"+code,{reliable:true})}catch(e){L.dialing=false;later(dial,5000);return}
+      const t=setTimeout(()=>{if(!c.open){try{c.close()}catch(e){}}L.dialing=false},12000);
+      const gone=()=>{clearTimeout(t);L.dialing=false;L.conns.delete(c);notify()};
+      c.on("open",()=>{clearTimeout(t);L.dialing=false;L.conns.add(c);notify();L.send("hello")});
+      c.on("data",emit);c.on("close",gone);c.on("error",gone);
+    }
+    later(dial,5000);
+  };
+
+  L.start=()=>{
+    relayStart();
+    if(role==="lp")hostPeer();else{phonePeer();later(dial,1500)}
+    const wd=setInterval(()=>{
+      if(L.dead){clearInterval(wd);return}
+      if(!L.es||L.es.readyState===2)relayStart();
+    },10000);
+  };
+  L.close=()=>{L.dead=true;try{if(L.es)L.es.close()}catch(e){}try{if(L.peer)L.peer.destroy()}catch(e){}L.conns.clear()};
+  return L;
+}
+
+/* ---------- wake lock (layar tetap menyala) ---------- */
+let wake=null,phoneActive=false,detecting=false,audioCtx=null,audioReady=false;
+async function acquireWake(){
+  try{
+    if(!("wakeLock" in navigator)||wake)return;
+    wake=await navigator.wakeLock.request("screen");
+    wake.addEventListener("release",()=>{wake=null;updateCaps()});
+  }catch(e){wake=null}
+  updateCaps();
+}
+async function releaseWake(){try{if(wake)await wake.release()}catch(e){}wake=null;updateCaps()}
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden)return;
+  if((phoneActive||detecting)&&!wake)acquireWake();
+  if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume().catch(()=>{});
+});
+
+/* ---------- mode ---------- */
+let isPhoneMode=false,bootDone=false;
+function switchMode(phone){
+  isPhoneMode=phone;
+  $("laptopMode").classList.toggle("hidden",phone);$("phoneMode").classList.toggle("hidden",!phone);
+  $("laptopTab").classList.toggle("active",!phone);$("phoneTab").classList.toggle("active",phone);
+  if(!phone&&bootDone)initHost();
+}
+$("laptopTab").onclick=()=>switchMode(false);
+$("phoneTab").onclick=()=>switchMode(true);
+
+/* =====================================================================
+   SISI LAPTOP
+   ===================================================================== */
+const video=$("video");
+let hostLink=null,hostCode="",hostState={p2p:0,ready:false,relay:false},phoneLastSeen=0,lastReply=0;
+const pending=new Map();
+const logs=[];
+function log(msg){
+  logs.unshift(new Date().toLocaleTimeString("id-ID")+" — "+msg);if(logs.length>40)logs.pop();
+  const el=$("log");el.textContent="";logs.forEach(t=>{const d=document.createElement("div");d.textContent=t;el.appendChild(d)});
+}
+function setStatus(kind,title,detail,hint){$("statusDot").className="dot "+(kind||"");$("statusText").textContent=title;$("statusDetail").textContent=detail;$("statusHint").textContent=hint}
+function setConnection(ok,msg){$("connectionDot").className="dot "+(ok?"green":"");$("connectionText").textContent=msg}
+function showTest(ok,msg){const el=$("testResult");el.textContent=msg;el.className="small "+(ok?"okTxt":"warnTxt")}
+const isPhoneOnline=()=>phoneLastSeen>0&&Date.now()-phoneLastSeen<ONLINE_MS;
+
+function renderChannels(){
+  const p=$("chP2P"),r=$("chRelay");
+  p.textContent="Langsung: "+(hostState.p2p?hostState.p2p+" HP":(hostState.ready?"siap":(window.Peer?"menghubungkan…":"tidak tersedia")));
+  p.className="pill"+(hostState.p2p?" ok":"");
+  r.textContent="Relay: "+(hostState.relay?"siap":"menghubungkan…");
+  r.className="pill"+(hostState.relay?" ok":"");
+}
+function onHostState(s){
+  if(s.conflict){const c=newCode();store.set("cas_host_code",c);log("Kode bentrok, dibuat kode baru: "+c);startHost(c);return}
+  hostState=s;renderChannels();
+}
+function onHostMsg(m){
+  if(m.r!=="hp")return;
+  const now=Date.now(),was=isPhoneOnline();
+  phoneLastSeen=now;
+  if(!was)log("HP terhubung.");
+  if(m.k==="hello"&&now-lastReply>2500){lastReply=now;hostLink.send("beat")}
+  else if(m.k==="ack"&&pending.has(m.ref)){
+    const p=pending.get(m.ref);pending.delete(m.ref);const ms=now-p.t;
+    if(p.kind==="test"){
+      showTest(true,"✔ HP menerima sinyal ("+ms+" ms). Suara HP: "+(m.snd?"aktif":"BELUM diaktifkan")+" • Getar: "+(m.vib?"didukung":"tidak didukung")+". Pastikan HP benar-benar berbunyi.");
+      log("Tes alarm: HP merespons ("+ms+" ms).");
+    }else log("HP menerima peringatan ("+ms+" ms).");
+  }
+}
+function startHost(code){
+  if(hostLink)hostLink.close();
+  hostCode=code;phoneLastSeen=0;pending.clear();hostState={p2p:0,ready:false,relay:false};
+  $("peerCode").textContent=code;
+  hostLink=createLink("lp",code,onHostMsg,onHostState);
+  hostLink.start();
+  renderQR();renderChannels();
+}
+function initHost(){
+  if(hostLink)return;
+  let code=cleanCode(store.get("cas_host_code",""));
+  if(code.length!==6){code=newCode();store.set("cas_host_code",code)}
+  startHost(code);
+}
+setInterval(()=>{if(hostLink&&phoneLastSeen)hostLink.send("beat")},HEARTBEAT_MS);
+setInterval(()=>{
+  if(!hostLink)return;
+  const on=isPhoneOnline();
+  setConnection(on,on?"HP terhubung ("+(hostState.p2p?"jalur langsung":"jalur relay")+")":(phoneLastSeen?"HP tidak merespons — periksa HP":"Menunggu HP terhubung…"));
+},1000);
+
+$("newCodeBtn").onclick=()=>{const c=newCode();store.set("cas_host_code",c);log("Kode koneksi baru dibuat.");startHost(c)};
+$("testBtn").onclick=()=>{
+  if(!hostLink)return;
+  const m=hostLink.send("test",{},true);pending.set(m.id,{kind:"test",t:Date.now()});
+  showTest(false,"Mengirim tes ke HP…");
+  setTimeout(()=>{if(pending.has(m.id)){pending.delete(m.id);showTest(false,"Tidak ada respons dalam 7 detik. Pastikan HP sudah menekan “Hubungkan & aktifkan alarm” dan internet HP aktif.")}},7000);
+};
+
+/* ---- QR & tautan ---- */
+const defaultBase=()=>location.protocol==="file:"?location.href.split("#")[0]:location.origin+location.pathname;
+$("baseUrl").value=store.get("cas_base","")||defaultBase();
+const baseUrl=()=>(($("baseUrl").value||"").trim()||defaultBase()).split("#")[0];
+const joinUrl=()=>baseUrl()+"#hp="+hostCode;
+function renderQR(){
+  if(!hostCode)return;
+  const url=joinUrl(),box=$("qr");
+  $("joinLink").textContent=url;
+  box.textContent="";
+  if(window.QRCode){try{new QRCode(box,{text:url,width:176,height:176,correctLevel:QRCode.CorrectLevel.M})}catch(e){box.textContent="QR gagal dibuat — salin tautan."}}
+  else box.textContent="QR belum termuat — salin tautan di samping.";
+  const b=baseUrl();
+  $("localWarn").classList.toggle("hidden",!(/^(file:|https?:\/\/(localhost|127\.|0\.0\.0\.0|\[::1\]))/i.test(b)));
+}
+$("baseUrl").oninput=()=>{store.set("cas_base",$("baseUrl").value.trim());renderQR()};
+$("copyBtn").onclick=async()=>{
+  const url=joinUrl();
+  try{await navigator.clipboard.writeText(url);$("copyBtn").textContent="Tersalin ✔";setTimeout(()=>$("copyBtn").textContent="Salin tautan",1800)}
+  catch(e){window.prompt("Salin tautan ini:",url)}
+};
+
+/* ---- pengaturan ---- */
+const cfg={hold:num("cas_hold",2.5),thr:num("cas_thr",0.68)};
+function syncCfg(){
+  $("holdRange").value=cfg.hold;$("thrRange").value=cfg.thr;
+  $("holdVal").textContent=cfg.hold.toFixed(1).replace(".",",");$("thrVal").textContent=cfg.thr.toFixed(2);
+}
+$("holdRange").oninput=e=>{cfg.hold=parseFloat(e.target.value);store.set("cas_hold",cfg.hold);syncCfg()};
+$("thrRange").oninput=e=>{cfg.thr=parseFloat(e.target.value);store.set("cas_thr",cfg.thr);syncCfg()};
+syncCfg();
+
+/* ---- deteksi mata ---- */
+let landmarker=null,stream=null,mp=null,tracks=[],lastAlert=0,loopTimer=0;
+async function loadAI(){
+  if(landmarker)return;
+  setStatus("","Memuat AI…","Tunggu","Mengunduh model AI pertama kali. Perlu koneksi internet.");
+  mp=await import(MP_URL);
+  const vision=await mp.FilesetResolver.forVisionTasks(MP_URL+"/wasm");
+  const make=delegate=>mp.FaceLandmarker.createFromOptions(vision,{baseOptions:{modelAssetPath:MODEL_URL,delegate:delegate},runningMode:"VIDEO",numFaces:5,outputFaceBlendshapes:true});
+  try{landmarker=await make("GPU")}catch(e){console.warn("GPU gagal, memakai CPU",e);landmarker=await make("CPU")}
+}
+async function start(){
+  $("startBtn").disabled=true;
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("Kamera hanya bisa dipakai lewat HTTPS atau localhost.");
+    await loadAI();
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280},height:{ideal:720}},audio:false});
+    video.srcObject=stream;await video.play();
+    $("placeholder").classList.add("hidden");$("cameraBadge").textContent="Webcam aktif";$("stopBtn").disabled=false;
+    detecting=true;tracks=[];acquireWake();
+    setStatus("green","Sistem aktif","NORMAL","AI sedang memantau indikator mata. Tidak ada video yang disimpan.");
+    loop();
+  }catch(e){
+    setStatus("red","Tidak dapat memulai","Periksa izin webcam","Gunakan Chrome/Edge dan buka halaman lewat HTTPS atau localhost. "+(e&&e.message?e.message:""));
+    if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+    $("startBtn").disabled=false;
+  }
+}
+function loop(){
+  if(!detecting)return;
+  const t0=performance.now();
+  if(video.readyState>=2&&video.videoWidth&&landmarker){
+    try{analyze(landmarker.detectForVideo(video,t0))}catch(e){console.warn(e)}
+  }
+  loopTimer=setTimeout(loop,Math.max(30,90-(performance.now()-t0)));
+}
+function analyze(res){
+  const now=Date.now(),faces=res.faceBlendshapes||[],lms=res.faceLandmarks||[];
+  $("faceCount").textContent=faces.length;
+  if(!faces.length){
+    tracks=[];$("meterFill").style.width="0%";
+    setStatus("","Wajah tidak terdeteksi","—","Atur posisi webcam agar wajah terlihat. Ini bukan bukti siswa tidur.");
+    return;
+  }
+  const used=new Set();let anyClosed=false,maxElapsed=0,maxScore=0;
+  faces.forEach((f,i)=>{
+    const cats=f.categories||[];
+    const l=(cats.find(x=>x.categoryName==="eyeBlinkLeft")||{}).score||0;
+    const r=(cats.find(x=>x.categoryName==="eyeBlinkRight")||{}).score||0;
+    const nose=(lms[i]&&lms[i][1])||{x:.5,y:.5};
+    let best=null,bd=.15;
+    for(const t of tracks){if(used.has(t))continue;const d=Math.hypot(t.x-nose.x,t.y-nose.y);if(d<bd){bd=d;best=t}}
+    if(!best){best={x:nose.x,y:nose.y,closedSince:null,seen:now};tracks.push(best)}
+    used.add(best);best.x=nose.x;best.y=nose.y;best.seen=now;
+    if(l>cfg.thr&&r>cfg.thr){
+      anyClosed=true;if(best.closedSince===null)best.closedSince=now;
+      maxElapsed=Math.max(maxElapsed,now-best.closedSince);
+    }else best.closedSince=null;
+    maxScore=Math.max(maxScore,Math.min(l,r));
+  });
+  tracks=tracks.filter(t=>now-t.seen<1500);
+  $("meterFill").style.width=Math.round(maxScore*100)+"%";
+  if(anyClosed&&maxElapsed>=cfg.hold*1000){
+    setStatus("red","Indikasi kantuk","MATA TERTUTUP","Mata terdeteksi tertutup cukup lama. Peringatan dikirim ke HP.");
+    if(now-lastAlert>COOLDOWN_MS){lastAlert=now;triggerAlert()}
+  }else if(anyClosed){
+    setStatus("","Memeriksa…",(maxElapsed/1000).toFixed(1)+" detik","Menunggu untuk memastikan ini bukan kedipan biasa.");
+  }else{
+    setStatus("green","Sistem aktif","NORMAL","Wajah terdeteksi; tidak ada indikasi mata tertutup lama.");
+  }
+}
+function triggerAlert(){
+  if(!hostLink)return;
+  const m=hostLink.send("alert",{},true);pending.set(m.id,{kind:"alert",t:Date.now()});
+  log(isPhoneOnline()?"Indikasi mata tertutup lama; peringatan dikirim ke HP.":"Indikasi mata tertutup lama, tetapi HP belum terhubung.");
+}
+function stop(){
+  detecting=false;clearTimeout(loopTimer);
+  if(stream){stream.getTracks().forEach(t=>t.stop())}
+  stream=null;video.srcObject=null;tracks=[];
+  releaseWake();
+  $("placeholder").classList.remove("hidden");$("cameraBadge").textContent="Kamera berhenti";$("startBtn").disabled=false;$("stopBtn").disabled=true;
+  $("faceCount").textContent="0";$("meterFill").style.width="0%";
+  setStatus("","Sistem berhenti","—","Aktifkan webcam untuk memulai lagi.");
+}
+$("startBtn").onclick=start;$("stopBtn").onclick=stop;
+
+/* =====================================================================
+   SISI HP
+   ===================================================================== */
+let phoneLink=null,phoneState={p2p:0,ready:false,relay:false},lpLastSeen=0,helloTries=0,lastBeat=0;
+let ringing=false,stopTimer=0,vibTimer=0,fbOsc=null,fbTimer=0;
+
+function makeSirenUrl(){
+  const sr=22050,seg=.4,per=Math.floor(sr*seg),n=per*4;
+  const buf=new ArrayBuffer(44+n*2),v=new DataView(buf);
+  const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+  w(0,"RIFF");v.setUint32(4,36+n*2,true);w(8,"WAVE");w(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,n*2,true);
+  let ph=0;
+  for(let i=0;i<n;i++){
+    const si=Math.floor(i/per),pos=i%per,f=si%2===0?1000:700;
+    ph+=2*Math.PI*f/sr;
+    const edge=Math.min(1,pos/(sr*.01),(per-pos)/(sr*.01));
+    const s=(Math.sin(ph)+.4*Math.sin(3*ph))/1.4*edge;
+    v.setInt16(44+i*2,Math.round(s*32767*.95),true);
+  }
+  return URL.createObjectURL(new Blob([buf],{type:"audio/wav"}));
+}
+const siren=new Audio(makeSirenUrl());siren.loop=true;siren.preload="auto";
+
+function updateCaps(){
+  $("capSound").textContent="Suara: "+(audioReady?"aktif ✔":"belum diaktifkan (ketuk tombol hijau)");
+  $("capVib").textContent="Getar: "+(("vibrate" in navigator)?"didukung ✔":"tidak didukung browser ini (iPhone/iOS tidak mendukung getar di web — alarm tetap berbunyi)");
+  $("capWake").textContent="Layar: "+(wake?"dijaga tetap menyala ✔":(("wakeLock" in navigator)?"belum dijaga":"tidak bisa dijaga otomatis — atur waktu layar HP ke maksimal"));
+}
+function fallbackSiren(){
+  if(!audioCtx||fbOsc)return;
+  try{
+    audioCtx.resume();
+    fbOsc=audioCtx.createOscillator();const g=audioCtx.createGain();
+    fbOsc.type="square";g.gain.value=.35;fbOsc.frequency.value=950;fbOsc.connect(g);g.connect(audioCtx.destination);fbOsc.start();
+    let hi=true;fbTimer=setInterval(()=>{hi=!hi;if(fbOsc)fbOsc.frequency.value=hi?950:700},400);
+  }catch(e){}
+}
+function stopFallback(){clearInterval(fbTimer);try{if(fbOsc)fbOsc.stop()}catch(e){}fbOsc=null}
+async function playSiren(){try{siren.currentTime=0;await siren.play()}catch(e){fallbackSiren()}}
+async function unlockAudio(){
+  let blip=false;
+  try{
+    siren.currentTime=0;await siren.play();blip=true;
+    setTimeout(()=>{if(!ringing){siren.pause();siren.currentTime=0}},600);
+  }catch(e){}
+  let ctxOk=false;
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(AC){audioCtx=audioCtx||new AC();await audioCtx.resume();ctxOk=true}
+    if(ctxOk&&!blip){fallbackSiren();setTimeout(()=>{if(!ringing)stopFallback()},500)}
+  }catch(e){}
+  audioReady=blip||ctxOk;
+  updateCaps();
+}
+function vibLoop(){if(navigator.vibrate)navigator.vibrate([500,150,500,150,500,150,500])}
+function notifyAlarm(text){
+  try{if("Notification" in window&&Notification.permission==="granted"&&document.hidden)new Notification("Classroom Alert",{body:text,tag:"cas",renotify:true,requireInteraction:true,vibrate:[300,100,300]})}catch(e){}
+}
+function startAlarm(ms,title,sub){
+  clearTimeout(stopTimer);stopTimer=setTimeout(stopAlarm,ms||ALARM_MS);
+  $("alarmTitle").textContent=title||"PERINGATAN!";$("alarmSub").textContent=sub||"Ada indikasi kantuk terdeteksi oleh sistem kelas.";
+  if(ringing)return;
+  ringing=true;
+  $("alarmOverlay").classList.remove("hidden");
+  $("phoneAlert").textContent=title||"PERINGATAN!";$("phoneAlertHint").textContent="Laptop mendeteksi indikasi mata tertutup lama.";
+  playSiren();vibLoop();vibTimer=setInterval(vibLoop,2600);
+  notifyAlarm(sub||"Ada indikasi kantuk terdeteksi.");
+}
+function stopAlarm(){
+  clearTimeout(stopTimer);clearInterval(vibTimer);
+  try{siren.pause();siren.currentTime=0}catch(e){}
+  stopFallback();
+  if(navigator.vibrate)navigator.vibrate(0);
+  ringing=false;
+  $("alarmOverlay").classList.add("hidden");
+  $("phoneAlert").textContent="SIAGA";$("phoneAlertHint").textContent="Alarm dimatikan. HP tetap siap menerima peringatan berikutnya.";
+}
+$("stopAlarmBtn").onclick=stopAlarm;
+$("phoneTestBtn").onclick=async()=>{
+  if(!audioReady)await unlockAudio();
+  if(navigator.vibrate)navigator.vibrate(100);
+  startAlarm(3500,"TES ALARM","Jika Anda mendengar bunyi dan merasakan getar, HP sudah siap.");
+};
+
+function setPhoneStatus(kind,title,detail){
+  $("phoneDot").className="dot "+(kind||"");$("phoneStatus").textContent=title;$("phoneDetail").textContent=detail;
+}
+function onPhoneMsg(m){
+  if(m.r!=="lp")return;
+  lpLastSeen=Date.now();helloTries=0;
+  if(m.k==="alert"||m.k==="test"){
+    if(m.k==="alert")startAlarm(ALARM_MS,"PERINGATAN!","Ada indikasi kantuk terdeteksi oleh sistem kelas.");
+    else startAlarm(4000,"TES ALARM","Tes dari laptop berhasil diterima.");
+    if(phoneLink)phoneLink.send("ack",{ref:m.id,snd:audioReady?1:0,vib:("vibrate" in navigator)?1:0});
+  }
+}
+function phoneTick(){
+  if(!phoneLink)return;
+  const now=Date.now(),online=lpLastSeen>0&&now-lpLastSeen<ONLINE_MS;
+  if(online){
+    if(now-lastBeat>HEARTBEAT_MS){phoneLink.send("beat");lastBeat=now}
+    setPhoneStatus("green","Terhubung ke laptop","Jalur: "+(phoneState.p2p?"langsung (P2P)":"relay")+" • siap menerima peringatan.");
+  }else{
+    const gap=helloTries<5?4000:HEARTBEAT_MS;
+    if(now-lastBeat>gap){phoneLink.send("hello");lastBeat=now;helloTries++}
+    if(lpLastSeen)setPhoneStatus("","Laptop tidak terdengar","Mencoba menyambung ulang… pastikan halaman laptop masih terbuka.");
+    else setPhoneStatus("","Menyambung ke laptop…","Pastikan kode benar dan halaman laptop terbuka. Relay: "+(phoneState.relay?"siap":"menghubungkan…"));
+  }
+}
+setInterval(phoneTick,1000);
+
+async function connectPhone(){
+  const code=cleanCode($("hostCode").value);
+  if(code.length!==6){setPhoneStatus("","Kode belum lengkap","Masukkan 6 karakter kode yang tampil di layar laptop.");$("hostCode").focus();return}
+  $("hostCode").value=code;store.set("cas_hp_code",code);
+  $("connectBtn").disabled=true;
+  if(navigator.vibrate)navigator.vibrate(250);
+  await unlockAudio();             // harus dijalankan dari ketukan pengguna
+  acquireWake();
+  try{if("Notification" in window&&Notification.permission==="default")Notification.requestPermission()}catch(e){}
+  await peerReady;
+  if(phoneLink)phoneLink.close();
+  phoneActive=true;lpLastSeen=0;helloTries=0;lastBeat=0;phoneState={p2p:0,ready:false,relay:false};
+  phoneLink=createLink("hp",code,onPhoneMsg,s=>{phoneState=s});
+  phoneLink.start();
+  $("disconnectBtn").disabled=false;$("connectBtn").textContent="Sambungkan ulang";$("connectBtn").disabled=false;
+  phoneTick();
+}
+$("connectBtn").onclick=connectPhone;
+$("hostCode").oninput=e=>{e.target.value=cleanCode(e.target.value)};
+$("hostCode").onkeydown=e=>{if(e.key==="Enter")connectPhone()};
+$("disconnectBtn").onclick=()=>{
+  if(phoneLink){phoneLink.close();phoneLink=null}
+  phoneActive=false;stopAlarm();releaseWake();
+  $("disconnectBtn").disabled=true;$("connectBtn").textContent="Hubungkan & aktifkan alarm";
+  setPhoneStatus("","Terputus","Ketuk tombol hijau untuk menyambung lagi.");
+};
+
+/* ---------- mulai ---------- */
+(async function boot(){
+  const m=location.hash.match(/hp=([A-Za-z0-9]+)/i),saved=cleanCode(store.get("cas_hp_code",""));
+  if(m){$("hostCode").value=cleanCode(m[1]);switchMode(true);setPhoneStatus("","Kode terisi dari QR","Ketuk tombol hijau untuk mengaktifkan alarm di HP ini.")}
+  else{
+    if(saved)$("hostCode").value=saved;
+    if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent))switchMode(true);
+  }
+  updateCaps();renderChannels();
+  loadScript(QR_SRCS).then(()=>renderQR());
+  await peerReady;
+  bootDone=true;
+  if(!isPhoneMode)initHost();
+})();
+</script>
+</body>
+</html>
